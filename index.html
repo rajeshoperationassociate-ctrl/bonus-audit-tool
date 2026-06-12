@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light"><head>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bonus Audit Tool v2</title>
@@ -118,7 +119,7 @@ select option{background:var(--surface2);color:var(--text)}
 </head>
 <body>
 
-<div id="pw-gate" style="display: none; position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background: rgb(240, 244, 248); z-index: 9999; align-items: center; justify-content: center; flex-direction: column;">
+<div id="pw-gate" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg,#0a0f1e);z-index:9999;align-items:center;justify-content:center;flex-direction:column">
   <div style="background:var(--surface,#111827);border:1px solid var(--border2,#254a78);border-radius:16px;padding:40px 36px;width:100%;max-width:420px;margin:20px">
     <div style="text-align:center;margin-bottom:28px">
       <div style="font-size:32px;margin-bottom:10px">🔐</div>
@@ -128,11 +129,13 @@ select option{background:var(--surface2);color:var(--text)}
     <div style="display:grid;gap:14px">
       <div>
         <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Email Address</label>
-        <input type="email" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()" style="width:100%;padding:11px 14px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
+        <input type="email" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()"
+          style="width:100%;padding:11px 14px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
       </div>
       <div>
         <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Password</label>
-        <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLogin()" style="width:100%;padding:11px 14px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
+        <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLogin()"
+          style="width:100%;padding:11px 14px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
       </div>
       <div id="login-error" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:7px;padding:9px 12px;font-size:12px;color:#f87171">✗ Invalid email or password.</div>
       <button onclick="checkLogin()" style="width:100%;padding:12px;background:var(--accent,#3b82f6);border:none;color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">Sign in →</button>
@@ -188,8 +191,8 @@ select option{background:var(--surface2);color:var(--text)}
 <div id="edit-row-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center">
   <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:460px;margin:20px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <div style="font-size:15px;font-weight:700;color:var(--text)">✎ Edit Payment</div>
-      <span onclick="closeEditRow()" style="font-size:20px;color:var(--text3);cursor:pointer">×</span>
+      <div style="font-size:15px;font-weight:700;color:var(--text)">&#9998; Edit Payment</div>
+      <span onclick="closeEditRow()" style="font-size:20px;color:var(--text3);cursor:pointer">&#215;</span>
     </div>
     <div id="edit-row-info" style="background:var(--surface2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text2);margin-bottom:16px"></div>
     <div style="display:grid;gap:12px">
@@ -210,48 +213,48 @@ select option{background:var(--surface2);color:var(--text)}
   </div>
 </div>
 <div class="topbar">
-  <h1>▲ Bonus <span>Audit</span> Tool</h1>
+  <h1>&#9650; Bonus <span>Audit</span> Tool</h1>
   <div style="display:flex;align-items:center;gap:10px">
     <span id="period-lbl" style="font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)">No period selected</span>
-    <span id="topbar-user" style="font-size:11px;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px;border:1px solid var(--border)">👤 Admin (admin)</span>
+    <span id="topbar-user" style="font-size:11px;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px;border:1px solid var(--border)"></span>
     <!-- Settings dropdown -->
     <div style="position:relative">
       <button onclick="toggleSettings()" id="settings-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
-        ⚙ Settings ▼
+        &#9881; Settings &#9660;
       </button>
-      <div id="settings-dropdown" style="display: none; position: absolute; right: 0px; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; min-width: 220px; box-shadow: rgba(0, 0, 0, 0.4) 0px 8px 32px; z-index: 999; overflow: hidden;">
+      <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden">
 
         <!-- Backend config -->
         <button onclick="openBackendConfig();closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
-          ☁ Backend (Google Sheets)
+          &#9729; Backend (Google Sheets)
         </button>
 
         <!-- Theme -->
         <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
           <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Theme</div>
           <div style="display:flex;gap:6px">
-            <button onclick="setTheme('dark');event.stopPropagation()" id="theme-dark" title="Dark" style="flex: 1 1 0%; padding: 6px; border-radius: 6px; border: 2px solid transparent; background: rgb(10, 15, 30); color: rgb(148, 163, 184); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transform: scale(1);">● Dark</button>
-            <button onclick="setTheme('medium');event.stopPropagation()" id="theme-medium" title="Medium" style="flex: 1 1 0%; padding: 6px; border-radius: 6px; border: 2px solid transparent; background: rgb(37, 51, 70); color: rgb(154, 179, 204); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transform: scale(1);">● Medium</button>
-            <button onclick="setTheme('light');event.stopPropagation()" id="theme-light" title="Light" style="flex: 1 1 0%; padding: 6px; border-radius: 6px; border: 2px solid var(--accent); background: rgb(240, 244, 248); color: rgb(51, 65, 85); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transform: scale(1.2);">● Light</button>
+            <button onclick="setTheme('dark');event.stopPropagation()"   id="theme-dark"   title="Dark"   style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);background:#0a0f1e;color:#94a3b8;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">&#9679; Dark</button>
+            <button onclick="setTheme('medium');event.stopPropagation()" id="theme-medium" title="Medium" style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);background:#253346;color:#9ab3cc;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">&#9679; Medium</button>
+            <button onclick="setTheme('light');event.stopPropagation()"  id="theme-light"  title="Light"  style="flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);background:#f0f4f8;color:#334155;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">&#9679; Light</button>
           </div>
         </div>
 
         <!-- Admin-only items -->
         <div id="settings-admin-section">
-          <button id="deploy-btn-topbar" onclick="openDeployModal();closeSettings()" style="display: block; width: 100%; text-align: left; padding: 10px 14px; border-top-width: medium; border-right-width: medium; border-left-width: medium; border-top-style: none; border-right-style: none; border-left-style: none; border-top-color: currentcolor; border-right-color: currentcolor; border-left-color: currentcolor; border-image: initial; background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; border-bottom: 1px solid var(--border);">
-            ▲ Deploy to GitHub
+          <button id="deploy-btn-topbar" onclick="openDeployModal();closeSettings()" style="display:none;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
+            &#9650; Deploy to GitHub
           </button>
-          <button id="users-btn-topbar" onclick="document.getElementById('chpw-modal').style.display='flex';umTab('add');closeSettings()" style="display: block; width: 100%; text-align: left; padding: 10px 14px; border-top-width: medium; border-right-width: medium; border-left-width: medium; border-top-style: none; border-right-style: none; border-left-style: none; border-top-color: currentcolor; border-right-color: currentcolor; border-left-color: currentcolor; border-image: initial; background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; border-bottom: 1px solid var(--border);">
-            👥 Manage users
+          <button id="users-btn-topbar" onclick="document.getElementById('chpw-modal').style.display='flex';umTab('add');closeSettings()" style="display:none;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
+            &#128101; Manage users
           </button>
         </div>
 
         <!-- All users -->
         <button onclick="document.getElementById('chpw-modal').style.display='flex';umTab('chpw');closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
-          🔒 Change password
+          &#128274; Change password
         </button>
         <button onclick="logoutUser();closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-          ← Sign out
+          &#8592; Sign out
         </button>
       </div>
     </div>
@@ -259,14 +262,14 @@ select option{background:var(--surface2);color:var(--text)}
 </div>
 
 <!-- DEPLOY MODAL -->
-<div id="deploy-modal" style="display: flex; position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.55); z-index: 999; align-items: center; justify-content: center;">
+<div id="deploy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:500px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
       <div>
-        <div style="font-size:16px;font-weight:700;color:#1a3a5c">▲ Deploy to GitHub Pages</div>
+        <div style="font-size:16px;font-weight:700;color:#1a3a5c">&#9650; Deploy to GitHub Pages</div>
         <div style="font-size:11px;color:#888;margin-top:3px">One-click update your live site</div>
       </div>
-      <span onclick="closeDeployModal()" style="font-size:22px;color:#aaa;cursor:pointer;line-height:1">×</span>
+      <span onclick="closeDeployModal()" style="font-size:22px;color:#aaa;cursor:pointer;line-height:1">&#215;</span>
     </div>
 
     <!-- Step 1: Token -->
@@ -274,46 +277,49 @@ select option{background:var(--surface2);color:var(--text)}
       <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px">Step 1 of 2 — GitHub Personal Access Token</div>
       <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.6">
         You need a token so this tool can push files to your GitHub repo.<br>
-        <a href="https://github.com/settings/tokens/new?scopes=repo&amp;description=BonusAuditTool" target="_blank" style="color:#1a3a5c;font-weight:600">↗ Click here to create one</a>
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=BonusAuditTool" target="_blank" style="color:#1a3a5c;font-weight:600">&#8599; Click here to create one</a>
         &nbsp;(check <b>repo</b> scope → Generate → copy it)
       </div>
       <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Personal Access Token</label>
-      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px">
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+        style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px">
 
       <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px">Step 2 of 2 — Repository details</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div>
           <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">GitHub Username</label>
-          <input type="text" id="gh-user" placeholder="e.g. john123" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
+          <input type="text" id="gh-user" placeholder="e.g. john123"
+            style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
         </div>
         <div>
           <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Repository Name</label>
-          <input type="text" id="gh-repo" placeholder="e.g. bonus-audit-tool" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
+          <input type="text" id="gh-repo" placeholder="e.g. bonus-audit-tool"
+            style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
         </div>
       </div>
 
       <div style="background:#fffcf2;border:1px solid #e8e0c8;border-radius:7px;padding:9px 12px;font-size:11px;color:#633806;margin-bottom:16px;line-height:1.6">
-        ⚠ Your token is used only for this upload and is <b>never stored anywhere</b>. It stays in memory only while this page is open.
+        &#9888; Your token is used only for this upload and is <b>never stored anywhere</b>. It stays in memory only while this page is open.
       </div>
 
-      <div id="deploy-status" style="display: block; padding: 9px 12px; border-radius: 7px; font-size: 12px; margin-bottom: 12px; background: rgb(240, 244, 248); border: 1px solid rgb(197, 212, 240); color: rgb(12, 68, 124);">↻ File found — updating...</div>
+      <div id="deploy-status" style="display:none;padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:12px"></div>
 
       <div style="display:flex;gap:8px">
         <button onclick="closeDeployModal()" style="flex:1;padding:10px;border:1px solid #ddd;background:#fff;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
-        <button onclick="runDeploy()" id="deploy-btn" style="flex:2;padding:10px;background:#2da44e;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" disabled="">Uploading...</button>
+        <button onclick="runDeploy()" id="deploy-btn" style="flex:2;padding:10px;background:#2da44e;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">&#9650; Deploy now</button>
       </div>
     </div>
   </div>
 </div>
 <div class="wrap">
   <div class="tabs">
-    <div class="tab active" id="tabBtn-dashboard" onclick="goTab('dashboard')">■ Dashboard</div>
-    <div class="tab" id="tabBtn-setup" onclick="goTab('setup')">⚙ Setup</div>
-    <div class="tab" id="tabBtn-audit" onclick="goTab('audit')">☰ Audit table</div>
-    <div class="tab" id="tabBtn-refunds" onclick="goTab('refunds')">↻ Refunds <span class="tag" id="refund-cnt" style="display:none;background:#e24b4a">0</span></div>
-    <div class="tab" id="tabBtn-repsum" onclick="goTab('repsum')">👤 Rep summary</div>
-    <div class="tab" id="tabBtn-dups" onclick="goTab('dups')">⚠ Duplicates <span class="tag" id="dup-cnt" style="display:none">0</span></div>
-    <div class="tab" id="tabBtn-history" onclick="goTab('history')">🕐 History <span class="tag" id="hcnt">1</span></div>
+    <div class="tab active" id="tabBtn-dashboard" onclick="goTab('dashboard')">&#9632; Dashboard</div>
+    <div class="tab" id="tabBtn-setup" onclick="goTab('setup')">&#9881; Setup</div>
+    <div class="tab" id="tabBtn-audit" onclick="goTab('audit')">&#9776; Audit table</div>
+    <div class="tab" id="tabBtn-refunds" onclick="goTab('refunds')">&#8635; Refunds <span class="tag" id="refund-cnt" style="display:none;background:#e24b4a">0</span></div>
+    <div class="tab" id="tabBtn-repsum" onclick="goTab('repsum')">&#128100; Rep summary</div>
+    <div class="tab" id="tabBtn-dups" onclick="goTab('dups')">&#9888; Duplicates <span class="tag" id="dup-cnt" style="display:none">0</span></div>
+    <div class="tab" id="tabBtn-history" onclick="goTab('history')">&#128336; History <span class="tag" id="hcnt">0</span></div>
   </div>
 
   <!-- SETUP -->
@@ -322,7 +328,7 @@ select option{background:var(--surface2);color:var(--text)}
       <div class="card-title">Audit period</div>
       <select id="sel-month" style="font-size:12px;padding:6px 10px;border:1px solid #ddd;border-radius:6px">
         <option>January 2026</option><option>February 2026</option><option>March 2026</option>
-        <option selected="">April 2026</option><option>May 2026</option><option>June 2026</option>
+        <option selected>April 2026</option><option>May 2026</option><option>June 2026</option>
         <option>July 2026</option><option>August 2026</option><option>September 2026</option>
         <option>October 2026</option><option>November 2026</option><option>December 2026</option>
         <option>January 2027</option><option>February 2027</option><option>March 2027</option>
@@ -332,215 +338,41 @@ select option{background:var(--surface2);color:var(--text)}
     <div class="card">
       <div class="card-title">Team configuration</div>
       <p style="font-size:12px;color:#666;margin-bottom:12px;">Reps in the same team pool their organic sales against their combined target. Meta incentives are always individual.</p>
-      <div id="team-config-area">
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div style="font-weight:700;font-size:13px;min-width:70px;">👥 Team 1</div>
-      <div style="flex:1;font-size:12px;color:#444;">
-        Members: <b>Kevin + Dinesh</b>
-        &nbsp;·&nbsp;
-        Combined target: <b>₹19,00,000</b>
-      </div>
-      <div style="font-size:11px;color:#888;">
-        Kevin: ₹4,00,000 @ 10% &nbsp;|&nbsp; Dinesh: ₹15,00,000 @ 5%
-      </div>
-    </div>
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div style="font-weight:700;font-size:13px;min-width:70px;">👥 Team 2</div>
-      <div style="flex:1;font-size:12px;color:#444;">
-        Members: <b>Mathiew + Hari</b>
-        &nbsp;·&nbsp;
-        Combined target: <b>₹16,00,000</b>
-      </div>
-      <div style="font-size:11px;color:#888;">
-        Mathiew: ₹4,00,000 @ 10% &nbsp;|&nbsp; Hari: ₹12,00,000 @ 5%
-      </div>
-    </div></div>
+      <div id="team-config-area"></div>
     </div>
 
     <div class="card">
       <div class="card-title">Sales rep configuration</div>
       <div class="formula">
         <b>Organic bonus eligibility</b>: Only if team's combined organic net &gt; combined target<br>
-        <b>Organic incentive</b> = Team surplus × Rep's share% × Rep organic rate%<br>
-        <b>Meta 1000 incentive</b> = Meta 1000 net × 5%<br>
-        <b>Meta 89rs + Tamil Instagram</b> = Net × 8%<br>
-        <b>Net revenue</b> = Amount Paid − GST(18%) − Mgmt cost(2%)<br>
+        <b>Organic incentive</b> = Team surplus &times; Rep's share% &times; Rep organic rate%<br>
+        <b>Meta 1000 incentive</b> = Meta 1000 net &times; 5%<br>
+        <b>Meta 89rs + Tamil Instagram</b> = Net &times; 8%<br>
+        <b>Net revenue</b> = Amount Paid &minus; GST(18%) &minus; Mgmt cost(2%)<br>
         <b>Final payout</b> = Organic + Meta 1000 + Meta 89rs + Tamil Instagram incentives
       </div>
-      <div class="rep-grid" id="rep-grid">
-    <div class="rep-card">
-      <span class="rem" onclick="removeRep(1)">×</span>
-      <div class="rep-name"><div class="rav">K</div>Kevin</div>
-      <div class="rep-field"><label>Rep name</label>
-        <input type="text" value="Kevin" placeholder="e.g. Kevin" onchange="updRep(1,'name',this.value)"></div>
-      <div class="rep-field"><label>Target excl.GST (₹)</label>
-        <input type="number" value="400000" placeholder="e.g. 400000" onchange="updRep(1,'target',parseFloat(this.value)||0)"></div>
-      <div class="rep-field"><label>Organic rate %</label>
-        <select onchange="updRep(1,'orgRate',parseFloat(this.value))">
-          <option value="5">5%</option>
-          <option value="8">8%</option>
-          <option value="10" selected="">10%</option>
-          <option value="12">12%</option>
-        </select></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
-        Formula: (Organic net − ₹4,00,000) × 10%
-        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
-      </div>
-    </div>
-    <div class="rep-card">
-      <span class="rem" onclick="removeRep(2)">×</span>
-      <div class="rep-name"><div class="rav">D</div>Dinesh</div>
-      <div class="rep-field"><label>Rep name</label>
-        <input type="text" value="Dinesh" placeholder="e.g. Kevin" onchange="updRep(2,'name',this.value)"></div>
-      <div class="rep-field"><label>Target excl.GST (₹)</label>
-        <input type="number" value="1500000" placeholder="e.g. 400000" onchange="updRep(2,'target',parseFloat(this.value)||0)"></div>
-      <div class="rep-field"><label>Organic rate %</label>
-        <select onchange="updRep(2,'orgRate',parseFloat(this.value))">
-          <option value="5" selected="">5%</option>
-          <option value="8">8%</option>
-          <option value="10">10%</option>
-          <option value="12">12%</option>
-        </select></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
-        Formula: (Organic net − ₹15,00,000) × 5%
-        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
-      </div>
-    </div>
-    <div class="rep-card">
-      <span class="rem" onclick="removeRep(3)">×</span>
-      <div class="rep-name"><div class="rav">M</div>Mathiew</div>
-      <div class="rep-field"><label>Rep name</label>
-        <input type="text" value="Mathiew" placeholder="e.g. Kevin" onchange="updRep(3,'name',this.value)"></div>
-      <div class="rep-field"><label>Target excl.GST (₹)</label>
-        <input type="number" value="400000" placeholder="e.g. 400000" onchange="updRep(3,'target',parseFloat(this.value)||0)"></div>
-      <div class="rep-field"><label>Organic rate %</label>
-        <select onchange="updRep(3,'orgRate',parseFloat(this.value))">
-          <option value="5">5%</option>
-          <option value="8">8%</option>
-          <option value="10" selected="">10%</option>
-          <option value="12">12%</option>
-        </select></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
-        Formula: (Organic net − ₹4,00,000) × 10%
-        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
-      </div>
-    </div>
-    <div class="rep-card">
-      <span class="rem" onclick="removeRep(4)">×</span>
-      <div class="rep-name"><div class="rav">H</div>Hari</div>
-      <div class="rep-field"><label>Rep name</label>
-        <input type="text" value="Hari" placeholder="e.g. Kevin" onchange="updRep(4,'name',this.value)"></div>
-      <div class="rep-field"><label>Target excl.GST (₹)</label>
-        <input type="number" value="1200000" placeholder="e.g. 400000" onchange="updRep(4,'target',parseFloat(this.value)||0)"></div>
-      <div class="rep-field"><label>Organic rate %</label>
-        <select onchange="updRep(4,'orgRate',parseFloat(this.value))">
-          <option value="5" selected="">5%</option>
-          <option value="8">8%</option>
-          <option value="10">10%</option>
-          <option value="12">12%</option>
-        </select></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
-        Formula: (Organic net − ₹12,00,000) × 5%
-        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
-      </div>
-    </div></div>
-      <button class="add-rep" onclick="addRep()">+ Add sales rep</button>
+      <div class="rep-grid" id="rep-grid"></div>
+      <button class="add-rep" onclick="addRep()">&#43; Add sales rep</button>
     </div>
 
     <div class="card">
       <div class="card-title">Upload each rep's incentive report</div>
       <p style="font-size:12px;color:#666;margin-bottom:14px;">Upload one Excel file per rep. Each file can have up to 3 sheet tabs: Organic, Meta AD, Tamil Instagram — detected automatically.</p>
-      <div id="rep-upload-area">
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
-        <div class="rav">K</div>
-        <div>
-          <div style="font-weight:600;font-size:13px;">Kevin</div>
-          <div style="font-size:10px;color:#888;">Target ₹4,00,000 · Organic 10%</div>
-        </div>
-      </div>
-      <div class="ub" id="box-rep-1" onclick="document.getElementById('in-rep-1').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
-        <input type="file" id="in-rep-1" accept=".xlsx,.xls">
-        <span class="ub-clear" onclick="clrRepFile(1,event)">✕</span>
-        <div style="font-size:20px;">📄</div>
-        <div>
-          <div class="ub-title">Kevin's report (.xlsx)</div>
-          <div class="ub-sub" id="lbl-rep-1">Sheets: Organic · Meta AD · Tamil Instagram</div>
-        </div>
-      </div>
-      <div id="pills-rep-1" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
-    </div>
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
-        <div class="rav">D</div>
-        <div>
-          <div style="font-weight:600;font-size:13px;">Dinesh</div>
-          <div style="font-size:10px;color:#888;">Target ₹15,00,000 · Organic 5%</div>
-        </div>
-      </div>
-      <div class="ub" id="box-rep-2" onclick="document.getElementById('in-rep-2').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
-        <input type="file" id="in-rep-2" accept=".xlsx,.xls">
-        <span class="ub-clear" onclick="clrRepFile(2,event)">✕</span>
-        <div style="font-size:20px;">📄</div>
-        <div>
-          <div class="ub-title">Dinesh's report (.xlsx)</div>
-          <div class="ub-sub" id="lbl-rep-2">Sheets: Organic · Meta AD · Tamil Instagram</div>
-        </div>
-      </div>
-      <div id="pills-rep-2" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
-    </div>
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
-        <div class="rav">M</div>
-        <div>
-          <div style="font-weight:600;font-size:13px;">Mathiew</div>
-          <div style="font-size:10px;color:#888;">Target ₹4,00,000 · Organic 10%</div>
-        </div>
-      </div>
-      <div class="ub" id="box-rep-3" onclick="document.getElementById('in-rep-3').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
-        <input type="file" id="in-rep-3" accept=".xlsx,.xls">
-        <span class="ub-clear" onclick="clrRepFile(3,event)">✕</span>
-        <div style="font-size:20px;">📄</div>
-        <div>
-          <div class="ub-title">Mathiew's report (.xlsx)</div>
-          <div class="ub-sub" id="lbl-rep-3">Sheets: Organic · Meta AD · Tamil Instagram</div>
-        </div>
-      </div>
-      <div id="pills-rep-3" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
-    </div>
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
-        <div class="rav">H</div>
-        <div>
-          <div style="font-weight:600;font-size:13px;">Hari</div>
-          <div style="font-size:10px;color:#888;">Target ₹12,00,000 · Organic 5%</div>
-        </div>
-      </div>
-      <div class="ub" id="box-rep-4" onclick="document.getElementById('in-rep-4').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
-        <input type="file" id="in-rep-4" accept=".xlsx,.xls">
-        <span class="ub-clear" onclick="clrRepFile(4,event)">✕</span>
-        <div style="font-size:20px;">📄</div>
-        <div>
-          <div class="ub-title">Hari's report (.xlsx)</div>
-          <div class="ub-sub" id="lbl-rep-4">Sheets: Organic · Meta AD · Tamil Instagram</div>
-        </div>
-      </div>
-      <div id="pills-rep-4" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
-    </div></div>
+      <div id="rep-upload-area"></div>
     </div>
       <div class="card-title" style="margin-top:10px">Master payment sheet &amp; Refund report (for verification)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-wrap:wrap;">
         <div class="ub" id="box-master" onclick="document.getElementById('in-master').click()" style="text-align:left;display:flex;align-items:center;gap:10px;padding:12px 16px">
           <input type="file" id="in-master" accept=".xlsx,.xls,.csv">
-          <span class="ub-clear" onclick="clrSheet('master',event)">✕</span>
-          <div style="font-size:20px">📋</div>
+          <span class="ub-clear" onclick="clrSheet('master',event)">&#10005;</span>
+          <div style="font-size:20px">&#128203;</div>
           <div><div class="ub-title">Master payment sheet</div>
           <div class="ub-sub" id="lbl-master">S No, Name, Program, Amount, Total, Pending, Status</div></div>
         </div>
         <div class="ub" id="box-refund-setup" onclick="document.getElementById('in-refund-setup').click()" style="text-align:left;display:flex;align-items:center;gap:10px;padding:12px 16px">
           <input type="file" id="in-refund-setup" accept=".xlsx,.xls,.csv">
-          <span class="ub-clear" id="refund-setup-clear" onclick="clrRefundSetup(event)">✕</span>
-          <div style="font-size:20px;color:#e24b4a">↻</div>
+          <span class="ub-clear" id="refund-setup-clear" onclick="clrRefundSetup(event)">&#10005;</span>
+          <div style="font-size:20px;color:#e24b4a">&#8635;</div>
           <div><div class="ub-title">Refund Tracker (.xlsx)</div>
           <div class="ub-sub" id="lbl-refund-setup">Student Name · Net Refund Amount · Approved By · Reason</div></div>
         </div>
@@ -548,12 +380,12 @@ select option{background:var(--surface2);color:var(--text)}
     </div>
 
     <div class="btn-row">
-      <button class="primary" onclick="runAudit()">▶ Run audit</button>
-      <button class="success" onclick="exportCSV()">↓ Export audit CSV</button>
-      <button class="success" onclick="exportPayout()">↓ Export payout sheet</button>
-      <button onclick="window.print()">🖶 Print</button>
-      <button onclick="exportDups()" class="danger">↓ Export duplicates CSV</button>
-      <button class="danger" onclick="clearAll()">✕ Clear all</button>
+      <button class="primary" onclick="runAudit()">&#9654; Run audit</button>
+      <button class="success" onclick="exportCSV()">&#8595; Export audit CSV</button>
+      <button class="success" onclick="exportPayout()">&#8595; Export payout sheet</button>
+      <button onclick="window.print()">&#128438; Print</button>
+      <button onclick="exportDups()" class="danger">&#8595; Export duplicates CSV</button>
+      <button class="danger" onclick="clearAll()">&#10005; Clear all</button>
     </div>
     <div id="run-st" style="font-size:12px;color:#1d9e75;font-weight:500"></div>
   </div>
@@ -570,30 +402,15 @@ select option{background:var(--surface2);color:var(--text)}
     </div>
     <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:11px;color:#888;font-weight:600;">Filter by rep:</span>
-      <button onclick="setRepFilter('')" id="repbtn-all" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#1a3a5c;color:#fff;cursor:pointer;font-weight:600;">
+      <button onclick="setRepFilter('')" id="repbtn-all"
+        style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#1a3a5c;color:#fff;cursor:pointer;font-weight:600;">
         All reps
       </button>
-      <div id="rep-quick-btns" style="display:flex;gap:6px;flex-wrap:wrap;">
-    <button onclick="setRepFilter('Kevin')" id="repbtn-1" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
-      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">K</span>
-      Kevin
-    </button>
-    <button onclick="setRepFilter('Dinesh')" id="repbtn-2" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
-      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">D</span>
-      Dinesh
-    </button>
-    <button onclick="setRepFilter('Mathiew')" id="repbtn-3" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
-      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">M</span>
-      Mathiew
-    </button>
-    <button onclick="setRepFilter('Hari')" id="repbtn-4" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
-      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">H</span>
-      Hari
-    </button></div>
+      <div id="rep-quick-btns" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     </div>
     <div class="filter-row">
       <select id="f-month" onchange="renderTable()"><option value="">All months</option></select>
-      <select id="f-rep" onchange="renderTable()" style="display:none"><option value="">All reps</option><option>Kevin</option><option>Dinesh</option><option>Mathiew</option><option>Hari</option></select>
+      <select id="f-rep" onchange="renderTable()" style="display:none"><option value="">All reps</option></select>
       <select id="f-sheet" onchange="renderTable()">
         <option value="">All sources</option>
         <option value="Organic">Organic</option>
@@ -640,8 +457,8 @@ select option{background:var(--surface2);color:var(--text)}
     </div>
 
     <div style="font-size:11px;color:#888;margin-top:8px;padding:8px 12px;background:#fffcf0;border:1px solid #e8e0c8;border-radius:6px;">
-      <b>* Row incentive</b> = Net revenue × rate% (flat per row).
-      <b>Final payout</b> applies target deduction: (Organic net − Target) × rate%.
+      <b>* Row incentive</b> = Net revenue &times; rate% (flat per row).
+      <b>Final payout</b> applies target deduction: (Organic net &minus; Target) &times; rate%.
       See <b>Rep summary</b> tab for correct final payout per rep.
     </div>
   </div>
@@ -664,34 +481,21 @@ select option{background:var(--surface2);color:var(--text)}
         <div style="font-size:11px;color:#888;margin-top:2px">Each month's audit is saved automatically when you run audit.</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="success" onclick="exportHistoryJSON()">↓ Backup history (.json)</button>
-        <button class="primary" onclick="document.getElementById('in-hist-import').click()">↑ Restore history</button>
+        <button class="success" onclick="exportHistoryJSON()">&#8595; Backup history (.json)</button>
+        <button class="primary" onclick="document.getElementById('in-hist-import').click()">&#8593; Restore history</button>
         <input type="file" id="in-hist-import" accept=".json" style="display:none" onchange="importHistoryJSON(this)">
-        <button class="success" onclick="exportAllMonths()">↓ Export summary CSV</button>
-        <button class="danger" onclick="if(confirm('Clear ALL saved history?')){HIST=[];persistHist();renderHistList();}">✕ Clear all</button>
+        <button class="success" onclick="exportAllMonths()">&#8595; Export summary CSV</button>
+        <button class="danger" onclick="if(confirm('Clear ALL saved history?')){HIST=[];persistHist();renderHistList();}">&#10005; Clear all</button>
       </div>
     </div>
     <div style="background:#fffcf2;border:1px solid #e8e0c8;border-radius:7px;padding:9px 14px;font-size:11px;color:#633806;margin-bottom:12px;line-height:1.6">
-      <b>💾 How history works:</b> History saves automatically every time you run audit.
+      <b>&#128190; How history works:</b> History saves automatically every time you run audit.
       If you open this file from a <b>local folder</b>, use <b>Backup history</b> after each session and <b>Restore history</b> when you reopen the file.
       If hosted on <b>GitHub Pages</b>, history persists automatically — no backup needed.
     </div>
-    <div id="hlist"><div style="font-size:11px;color:#888;padding:8px 14px;background:#fffcf2;border-bottom:1px solid #e8e0c8;">💾 Data saved in browser storage — persists when you close and reopen this file.</div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0ec;font-size:12px">
-      <div>
-        <div style="font-weight:700;font-size:13px">April 2026</div>
-        <div style="color:#888;font-size:11px;margin-top:2px">
-          Saved 12/6/2026 10:59 am · 179 entries · 4 rep(s)
-          
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span style="color:#1a3a5c;cursor:pointer;font-weight:600;font-size:11px;text-decoration:underline" onclick="loadHist(0)">Load →</span>
-        <span style="color:#e24b4a;cursor:pointer;font-weight:600;font-size:11px" onclick="deleteHist(0)" title="Delete this month">✕</span>
-      </div>
-    </div></div>
+    <div id="hlist"><div class="empty">No audits saved yet. Run an audit first, or restore a previous backup.</div></div>
   </div>
-
+</div>
 
   <!-- DASHBOARD -->
   <div class="tab-content" id="tab-dashboard">
@@ -723,7 +527,7 @@ select option{background:var(--surface2);color:var(--text)}
 
       <!-- Refund impact section -->
       <div class="card" id="db-refund-card" style="display:none;margin-bottom:14px;border-left:3px solid #e24b4a">
-        <div class="card-title" style="color:#e24b4a">⚠ Refund impact on payouts</div>
+        <div class="card-title" style="color:#e24b4a">&#9888; Refund impact on payouts</div>
         <div id="db-refund-summary"></div>
       </div>
 
@@ -749,7 +553,7 @@ select option{background:var(--surface2);color:var(--text)}
 
       <!-- Refund log table -->
       <div class="card" id="db-refund-table-card" style="display:none">
-        <div class="card-title" style="color:#e24b4a">Refund log (↻ from uploaded tracker)</div>
+        <div class="card-title" style="color:#e24b4a">Refund log (&#8635; from uploaded tracker)</div>
         <div class="tbl-wrap">
           <table>
             <thead><tr>
@@ -775,13 +579,14 @@ select option{background:var(--surface2);color:var(--text)}
     </div>
 
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title">📄 Upload refund report (Excel)</div>
+      <div class="card-title">&#128196; Upload refund report (Excel)</div>
       <p style="font-size:12px;color:#666;margin-bottom:12px;">Upload your Refund Tracker. The tool <b>auto-matches each student name</b> to the correct sales rep from the uploaded incentive reports — no Sales Rep column needed.</p>
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-        <div class="ub" id="box-refund-upload" onclick="document.getElementById('in-refund-upload').click()" style="flex:1;min-width:260px;padding:12px 16px;text-align:left;display:flex;align-items:center;gap:10px;position:relative;">
+        <div class="ub" id="box-refund-upload" onclick="document.getElementById('in-refund-upload').click()"
+          style="flex:1;min-width:260px;padding:12px 16px;text-align:left;display:flex;align-items:center;gap:10px;position:relative;">
           <input type="file" id="in-refund-upload" accept=".xlsx,.xls,.csv">
-          <span class="ub-clear" id="refund-upload-clear" onclick="clearRefundUpload(event)" style="display:none">✕</span>
-          <div style="font-size:22px">📋</div>
+          <span class="ub-clear" id="refund-upload-clear" onclick="clearRefundUpload(event)" style="display:none">&#10005;</span>
+          <div style="font-size:22px">&#128203;</div>
           <div>
             <div class="ub-title">Refund report (.xlsx / .csv)</div>
             <div class="ub-sub" id="lbl-refund-upload">Date · Student Name · Email · Sales Rep · Refund Amount · Incentive % · Reason</div>
@@ -796,17 +601,17 @@ select option{background:var(--surface2);color:var(--text)}
       <div style="font-size:11px;color:#888;line-height:1.7;">
         <b>Supports two formats — rep auto-detected from incentive reports:</b><br>
         <span style="font-family:monospace;background:#f0faf6;color:#085041;padding:3px 10px;border-radius:4px;display:inline-block;margin-top:6px;font-size:11px;">
-          ✓ Refund Tracker format &nbsp;—&nbsp; Student Name · Email ID · Net Refund Amount · Refund Request Date · Approved By · Reason for Refund
+          &#10003; Refund Tracker format &nbsp;—&nbsp; Student Name · Email ID · Net Refund Amount · Refund Request Date · Approved By · Reason for Refund
         </span><br>
         <span style="font-family:monospace;background:#f5f5f0;padding:3px 10px;border-radius:4px;display:inline-block;margin-top:5px;font-size:11px;">
-          ✓ Generic format &nbsp;—&nbsp; Date · Student Name · Email · Sales Rep · Refund Amount · Incentive % · Reason
+          &#10003; Generic format &nbsp;—&nbsp; Date · Student Name · Email · Sales Rep · Refund Amount · Incentive % · Reason
         </span><br>
-        <span style="color:#ba7517;font-size:11px;margin-top:5px;display:inline-block;">⚠ Rows with status <b>Rejected</b> or <b>Pending</b> are skipped. The <b>Sales Rep is auto-detected</b> by matching the Student Name against all uploaded incentive reports — no manual rep selection needed.</span>
+        <span style="color:#ba7517;font-size:11px;margin-top:5px;display:inline-block;">&#9888; Rows with status <b>Rejected</b> or <b>Pending</b> are skipped. The <b>Sales Rep is auto-detected</b> by matching the Student Name against all uploaded incentive reports — no manual rep selection needed.</span>
       </div>
     </div>
 
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title">✎ Log a new refund manually</div>
+      <div class="card-title">&#9998; Log a new refund manually</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px">
         <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Refund date</label>
           <input type="text" id="rf-date" placeholder="e.g. 05-Apr-26" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
@@ -837,7 +642,9 @@ select option{background:var(--surface2);color:var(--text)}
       <div class="card-title">Refund log</div>
       <div class="filter-row" style="margin-bottom:10px">
         <select id="rf-filter-month" onchange="renderRefundTable()"><option value="">All months</option></select>
-        <select id="rf-filter-rep" onchange="renderRefundTable()"><option value="">All reps</option><option>Kevin</option><option>Dinesh</option><option>Mathiew</option><option>Hari</option></select>
+        <select id="rf-filter-rep" onchange="renderRefundTable()">
+          <option value="">All reps</option>
+        </select>
         <input type="text" id="rf-search" placeholder="Search student…" oninput="renderRefundTable()" style="width:160px">
       </div>
       <div class="tbl-wrap">
@@ -852,7 +659,7 @@ select option{background:var(--surface2);color:var(--text)}
         </table>
       </div>
       <div style="margin-top:10px;display:flex;gap:8px">
-        <button class="success" onclick="exportRefundCSV()">↓ Export refunds CSV</button>
+        <button class="success" onclick="exportRefundCSV()">&#8595; Export refunds CSV</button>
       </div>
     </div>
 
@@ -862,7 +669,7 @@ select option{background:var(--surface2);color:var(--text)}
     </div>
   </div>
 
-<!-- end wrap -->
+</div><!-- end wrap -->
 
 <script>
 /* ══ RATES & CONFIG ══ */
@@ -3477,5 +3284,5 @@ addRep('Mathiew',400000,10);
 addRep('Hari',1200000,5);
 loadPersistedHist();
 </script>
-
-</body></html>
+</body>
+</html>
