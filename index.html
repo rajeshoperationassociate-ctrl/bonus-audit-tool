@@ -1,207 +1,272 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" data-theme="light"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bonus Audit Tool v2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ── DARK theme (default) ── */
+:root,[data-theme="dark"]{
+  --bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--surface3:#1f2d44;
+  --border:#1e3a5f;--border2:#254a78;
+  --accent:#3b82f6;--accent2:#60a5fa;--accent-glow:rgba(59,130,246,0.15);
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;--purple:#8b5cf6;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
+  --radius:12px;--radius-sm:8px;
+}
+/* ── MEDIUM (slate blue) theme ── */
+[data-theme="medium"]{
+  --bg:#1e2a3a;--surface:#253346;--surface2:#2d3e55;--surface3:#354a62;
+  --border:#3a5272;--border2:#4a6a96;
+  --accent:#4f9cf9;--accent2:#7cb8ff;--accent-glow:rgba(79,156,249,0.15);
+  --green:#22c55e;--red:#f87171;--amber:#fbbf24;--purple:#a78bfa;
+  --text:#e2eaf4;--text2:#9ab3cc;--text3:#5a7a99;
+  --radius:12px;--radius-sm:8px;
+}
+/* ── LIGHT theme ── */
+[data-theme="light"]{
+  --bg:#f0f4f8;--surface:#ffffff;--surface2:#f5f7fa;--surface3:#e8edf3;
+  --border:#d0d9e4;--border2:#b0bfcc;
+  --accent:#2563eb;--accent2:#1d4ed8;--accent-glow:rgba(37,99,235,0.1);
+  --green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;
+  --text:#0f172a;--text2:#334155;--text3:#64748b;
+  --radius:12px;--radius-sm:8px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;background:#f2f1ed;color:#1a1a1a;min-height:100vh}
-.topbar{background:#1a3a5c;color:#fff;padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
-.topbar h1{font-size:15px;font-weight:600}.topbar span{font-size:11px;opacity:.65;font-family:monospace}
-.wrap{max-width:1300px;margin:0 auto;padding:22px 24px}
-.tabs{display:flex;gap:0;border-bottom:2px solid #e0ddd4;margin-bottom:22px}
-.tab{padding:9px 20px;font-size:12px;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
-.tab:hover{color:#1a3a5c}.tab.active{color:#1a3a5c;border-bottom-color:#1a3a5c}
+body{font-family:'Inter',-apple-system,sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+.topbar{background:linear-gradient(90deg,#0d1b35,#111827);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
+.topbar h1{font-size:15px;font-weight:600;color:var(--text)}.topbar h1 span{color:var(--accent2)}
+.wrap{max-width:1400px;margin:0 auto;padding:24px 28px}
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:5px;margin-bottom:24px;overflow-x:auto}
+.tab{padding:8px 16px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-radius:var(--radius-sm);border:none;background:transparent;white-space:nowrap;transition:all .15s;font-family:inherit}
+.tab:hover{color:var(--text2);background:var(--surface2)}
+.tab.active{background:var(--accent);color:#fff;font-weight:600;box-shadow:0 2px 12px rgba(59,130,246,.3)}
 .tab-content{display:none}.tab-content.active{display:block}
-.tag{background:#e24b4a;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700}
-.card{background:#fff;border:1px solid #e0ddd4;border-radius:10px;padding:16px 18px;margin-bottom:16px}
-.card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:12px}
+.tag{background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:20px;margin-left:5px;font-weight:700}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px}
+.card-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:14px}
 .rep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-bottom:14px}
-.rep-card{background:#fff;border:1px solid #e0ddd4;border-radius:10px;padding:16px;position:relative}
-.rep-name{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.rav{width:28px;height:28px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.rep-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;transition:border-color .15s}
+.rep-card:hover{border-color:var(--border2)}
+.rep-name{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.rav{width:30px;height:30px;border-radius:50%;background:var(--accent-glow);color:var(--accent2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2)}
 .rep-field{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
-.rep-field label{width:130px;color:#666;flex-shrink:0}
-.rep-field input,.rep-field select{flex:1;padding:5px 9px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit}
-.add-rep{display:flex;align-items:center;justify-content:center;gap:6px;border:2px dashed #ccc;border-radius:10px;padding:18px;cursor:pointer;color:#888;font-size:13px;font-weight:500;background:transparent;width:100%;transition:all .15s}
-.add-rep:hover{border-color:#1a3a5c;color:#1a3a5c}
-.rem{position:absolute;top:10px;right:12px;font-size:18px;color:#ccc;cursor:pointer;line-height:1}.rem:hover{color:#e24b4a}
+.rep-field label{width:130px;color:var(--text3);flex-shrink:0}
+.rep-field input,.rep-field select{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--surface);color:var(--text)}
+.rep-field input:focus,.rep-field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
+.add-rep{display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px dashed var(--border2);border-radius:var(--radius);padding:20px;cursor:pointer;color:var(--text3);font-size:13px;font-weight:500;background:transparent;width:100%;transition:all .15s;font-family:inherit}
+.add-rep:hover{border-color:var(--accent);color:var(--accent)}
+.rem{position:absolute;top:12px;right:14px;font-size:16px;color:var(--text3);cursor:pointer;line-height:1}.rem:hover{color:var(--red)}
 .up-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
-.ub{border:1.5px dashed #ccc;border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:#fafaf8;transition:all .15s;position:relative}
-.ub:hover{border-color:#1a3a5c;background:#f0f4f8}.ub.loaded{border-style:solid;border-color:#1d9e75;background:#f0faf6}
-.ub input{display:none}.ub-icon{font-size:22px;margin-bottom:5px}.ub-title{font-size:12px;font-weight:600;margin-bottom:2px}
-.ub-sub{font-size:10px;color:#888;line-height:1.4}.ub-clear{position:absolute;top:6px;right:8px;font-size:11px;color:#e24b4a;cursor:pointer;font-weight:700;display:none}
+.ub{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:var(--surface2);transition:all .15s;position:relative}
+.ub:hover{border-color:var(--accent);background:var(--surface3)}.ub.loaded{border-style:solid;border-color:var(--green);background:rgba(16,185,129,.06)}
+.ub input{display:none}.ub-icon{font-size:24px;margin-bottom:6px}.ub-title{font-size:12px;font-weight:600;margin-bottom:3px;color:var(--text)}
+.ub-sub{font-size:10px;color:var(--text3);line-height:1.4}.ub-clear{position:absolute;top:8px;right:10px;font-size:11px;color:var(--red);cursor:pointer;font-weight:700;display:none}
 .ub.loaded .ub-clear{display:block}
 .btn-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-button{cursor:pointer;font-size:12px;padding:8px 16px;border-radius:7px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-weight:500;font-family:inherit;transition:all .12s}
-button:hover{background:#f0f0ec}
-button.primary{background:#1a3a5c;border-color:#1a3a5c;color:#fff}
-button.primary:hover{background:#153050}
-button.success{background:#1d9e75;border-color:#1d9e75;color:#fff}
-button.danger{background:#e24b4a;border-color:#e24b4a;color:#fff}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin-bottom:18px}
-.kpi{background:#fff;border:1px solid #e0ddd4;border-radius:10px;padding:11px 14px}
-.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px}
-.kpi-val{font-size:20px;font-weight:700}.kpi-val.green{color:#1d9e75}.kpi-val.red{color:#e24b4a}.kpi-val.blue{color:#1a3a5c}.kpi-val.amber{color:#ba7517}
-.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.filter-row select,.filter-row input[type=text]{font-size:12px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;background:#fff}
-.filter-row input[type=text]{width:150px}
-.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid #e0ddd4}
-table{width:100%;border-collapse:collapse;font-size:12px;}
-th{background:#f5f5f0;padding:8px 10px;text-align:left;font-weight:600;font-size:10px;color:#555;border-bottom:1px solid #e0ddd4;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
-td{padding:7px 10px;border-bottom:1px solid #f0f0ec;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+button{cursor:pointer;font-size:12px;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-weight:500;font-family:inherit;transition:all .12s}
+button:hover{background:var(--surface3);color:var(--text);border-color:var(--border2)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(59,130,246,.25)}
+button.primary:hover{background:#2563eb}
+button.success{background:var(--green);border-color:var(--green);color:#fff}
+button.success:hover{background:#059669}
+button.danger{background:var(--red);border-color:var(--red);color:#fff}
+button.danger:hover{background:#dc2626}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.kpi{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:14px 16px}
+.kpi-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:700;font-family:monospace}
+.kpi-val.green{color:var(--green)}.kpi-val.red{color:var(--red)}.kpi-val.blue{color:var(--accent2)}.kpi-val.amber{color:var(--amber)}
+.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.filter-row select,.filter-row input[type=text]{font-size:12px;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit}
+.filter-row input[type=text]{width:160px}
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface2);padding:10px 12px;text-align:left;font-weight:600;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2)}
 tr:last-child td{border-bottom:none}
-tr.rok{background:#f2fbf6}tr.rmis{background:#fff8f8}tr.ronly{background:#fffcf2}tr.rpart{background:#f5f0ff}
-tr:hover td{filter:brightness(.97)}
-tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-family:monospace;font-size:12px}
-.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap}
-.b-ok{background:#e1f5ee;color:#085041}.b-mis{background:#fcebeb;color:#791f1f}
-.b-only{background:#faeeda;color:#633806}.b-part{background:#ede9fe;color:#4c1d95}
-.b-org{background:#e6f1fb;color:#0c447c}.b-m89{background:#eeedfe;color:#3c3489}
-.b-m1k{background:#f1efe8;color:#444}.b-inst{background:#fbeaf0;color:#72243e}
-.b-unk{background:#fff3cd;color:#856404;border:1px solid #ffc107}
-.rs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:20px}
-.rs-card{background:#fff;border:1px solid #e0ddd4;border-radius:10px;overflow:hidden}
-.rs-head{background:#1a3a5c;color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
-.rs-head .rn{font-size:14px;font-weight:700;flex:1}
-.rs-body{padding:14px 16px}
-.rs-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0ec;font-size:12px}
+tr.rok{background:rgba(16,185,129,.04)}tr.rmis{background:rgba(239,68,68,.05)}tr.ronly{background:rgba(245,158,11,.04)}tr.rpart{background:rgba(139,92,246,.05)}
+tr:hover td{background:var(--surface3)!important}
+tfoot td{background:var(--surface2);font-weight:700;border-top:2px solid var(--border2);font-family:monospace;font-size:12px;color:var(--text)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.b-ok{background:rgba(16,185,129,.15);color:#34d399}.b-mis{background:rgba(239,68,68,.15);color:#f87171}
+.b-only{background:rgba(245,158,11,.15);color:#fbbf24}.b-part{background:rgba(139,92,246,.15);color:#a78bfa}
+.b-org{background:rgba(59,130,246,.15);color:var(--accent2)}.b-m89{background:rgba(139,92,246,.15);color:#a78bfa}
+.b-m1k{background:rgba(148,163,184,.15);color:#94a3b8}.b-inst{background:rgba(236,72,153,.15);color:#f472b6}
+.b-unk{background:rgba(245,158,11,.15);color:#fbbf24}
+.rs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px;margin-bottom:20px}
+.rs-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.rs-head{background:linear-gradient(135deg,var(--surface2),var(--surface3));padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.rs-head .rn{font-size:14px;font-weight:700;flex:1;color:var(--text)}
+.rs-body{padding:16px 18px}
+.rs-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
 .rs-row:last-child{border-bottom:none}
-.rs-row .l{color:#666}.rs-row .v{font-family:monospace;font-weight:600}
-.v.green{color:#1d9e75}.v.red{color:#e24b4a}.v.blue{color:#1a3a5c}
-.formula{background:#f5f5f0;border:1px solid #e0ddd4;border-radius:8px;padding:11px 14px;font-size:11px;font-family:monospace;color:#444;line-height:2;margin-bottom:14px}
-.formula b{color:#1a3a5c}
-.empty{text-align:center;padding:40px;color:#aaa;font-size:12px}
+.rs-row .l{color:var(--text3)}.rs-row .v{font-family:monospace;font-weight:600;color:var(--text)}
+.v.green{color:var(--green)}.v.red{color:var(--red)}.v.blue{color:var(--accent2)}
+.formula{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:11px;font-family:monospace;color:var(--text2);line-height:2;margin-bottom:14px}
+.formula b{color:var(--accent2)}
+.empty{text-align:center;padding:48px;color:var(--text3);font-size:12px}
 .mono{font-family:monospace}
+input,select,textarea{background:var(--surface2)!important;color:var(--text)!important;border-color:var(--border)!important}
+input::placeholder{color:var(--text3)!important}
+select option{background:var(--surface2);color:var(--text)}
 @media(max-width:800px){.up-grid,.rs-grid,.rep-grid{grid-template-columns:1fr}.wrap{padding:16px}}
-@media print{.topbar,.btn-row,.filter-row,.up-grid,.rep-grid,.add-rep,.tabs{display:none!important}body{background:#fff}.wrap{padding:0}}
+@media print{.topbar,.btn-row,.filter-row,.up-grid,.rep-grid,.add-rep,.tabs{display:none!important}body{background:#fff;color:#000}.wrap{padding:0}}
 </style>
 </head>
 <body>
 
-<!-- ══ PASSWORD GATE ══ -->
-<div id="pw-gate" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;z-index:9999;align-items:center;justify-content:center;flex-direction:column">
-  <div style="background:#1e293b;border-radius:16px;padding:40px 36px;width:100%;max-width:420px;margin:20px;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid #334155">
+<div id="pw-gate" style="display: none; position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background: rgb(240, 244, 248); z-index: 9999; align-items: center; justify-content: center; flex-direction: column;">
+  <div style="background:var(--surface,#111827);border:1px solid var(--border2,#254a78);border-radius:16px;padding:40px 36px;width:100%;max-width:420px;margin:20px">
     <div style="text-align:center;margin-bottom:28px">
       <div style="font-size:32px;margin-bottom:10px">🔐</div>
-      <div style="font-size:20px;font-weight:700;color:#f8fafc;margin-bottom:4px">Bonus Audit Tool</div>
-      <div style="font-size:12px;color:#64748b">Sign in to continue</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text,#f1f5f9);margin-bottom:4px">Bonus Audit Tool</div>
+      <div style="font-size:12px;color:var(--text3,#475569)">Sign in to continue</div>
     </div>
     <div style="display:grid;gap:14px">
       <div>
-        <label style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Email Address</label>
-        <input type="email" id="login-email" placeholder="you@example.com"
-          onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()"
-          style="width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0f172a;color:#f8fafc;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Email Address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()" style="width:100%;padding:11px 14px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
       </div>
       <div>
-        <label style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Password</label>
-        <input type="password" id="login-pw" placeholder="••••••••"
-          onkeydown="if(event.key==='Enter')checkLogin()"
-          style="width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0f172a;color:#f8fafc;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Password</label>
+        <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLogin()" style="width:100%;padding:11px 14px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
       </div>
-      <div id="login-error" style="display:none;background:#2d1b1b;border:1px solid #7f1d1d;border-radius:7px;padding:9px 12px;font-size:12px;color:#fca5a5">
-        &#10005; Invalid email or password. Try again.
-      </div>
-      <button onclick="checkLogin()"
-        style="width:100%;padding:12px;background:#1e40af;border:none;color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">
-        Sign in &#8594;
-      </button>
+      <div id="login-error" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:7px;padding:9px 12px;font-size:12px;color:#f87171">✗ Invalid email or password.</div>
+      <button onclick="checkLogin()" style="width:100%;padding:12px;background:var(--accent,#3b82f6);border:none;color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">Sign in →</button>
     </div>
-    <div style="text-align:center;margin-top:18px;font-size:10px;color:#475569">
-      Contact your administrator to get access.
-    </div>
+    <div style="text-align:center;margin-top:18px;font-size:10px;color:var(--text3)">Contact your administrator to get access.</div>
   </div>
 </div>
 
-<!-- ══ USER MANAGEMENT MODAL ══ -->
-<div id="chpw-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:540px;margin:20px;box-shadow:0 20px 50px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto">
+<div id="chpw-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:540px;margin:20px;max-height:90vh;overflow-y:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <div style="font-size:15px;font-weight:700;color:#1a3a5c">&#128101; User Management</div>
-      <span onclick="document.getElementById('chpw-modal').style.display='none'" style="font-size:20px;color:#aaa;cursor:pointer">&#215;</span>
+      <div style="font-size:15px;font-weight:700;color:var(--text)">👥 User Management</div>
+      <span onclick="document.getElementById('chpw-modal').style.display='none'" style="font-size:20px;color:var(--text3);cursor:pointer">×</span>
     </div>
-    <div style="display:flex;gap:4px;margin-bottom:18px;background:#f5f5f0;border-radius:8px;padding:4px">
-      <button id="um-tab-add" onclick="umTab('add')" style="flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:#1a3a5c;color:#fff">Add User</button>
-      <button id="um-tab-list" onclick="umTab('list')" style="flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:#888">Manage Users</button>
-      <button id="um-tab-chpw" onclick="umTab('chpw')" style="flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:#888">Change My Password</button>
+    <div style="display:flex;gap:4px;margin-bottom:18px;background:var(--surface2);border-radius:8px;padding:4px">
+      <button id="um-tab-add" onclick="umTab('add')" style="flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--accent);color:#fff">Add User</button>
+      <button id="um-tab-list" onclick="umTab('list')" style="flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--text3)">Manage Users</button>
+      <button id="um-tab-chpw" onclick="umTab('chpw')" style="flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--text3)">Change Password</button>
     </div>
     <div id="um-panel-add">
       <div style="display:grid;gap:12px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div>
-            <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Full Name</label>
-            <input type="text" id="um-name" placeholder="e.g. Rajesh Kumar" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Role</label>
-            <select id="um-role" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-              <option value="admin">Admin</option>
-              <option value="viewer">Viewer</option>
-            </select>
-          </div>
+          <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Full Name</label>
+            <input type="text" id="um-name" placeholder="e.g. Rajesh Kumar" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>
+          <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Role</label>
+            <select id="um-role" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"><option value="admin">Admin</option><option value="viewer">Viewer</option></select></div>
         </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Email Address</label>
-          <input type="email" id="um-email" placeholder="user@example.com" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-        </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Password</label>
-          <input type="password" id="um-pw" placeholder="Min 6 characters" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-        </div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Email Address</label>
+          <input type="email" id="um-email" placeholder="user@example.com" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Password</label>
+          <input type="password" id="um-pw" placeholder="Min 6 characters" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>
         <div id="um-add-status" style="display:none;padding:8px 12px;border-radius:7px;font-size:12px"></div>
-        <button onclick="addUser()" style="padding:10px;background:#1a3a5c;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Add User</button>
+        <button onclick="addUser()" style="padding:10px;background:var(--accent);border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Add User</button>
       </div>
     </div>
     <div id="um-panel-list" style="display:none"><div id="um-user-list"></div></div>
     <div id="um-panel-chpw" style="display:none">
       <div style="display:grid;gap:12px">
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Current Password</label>
-          <input type="password" id="chpw-current" placeholder="Enter current password" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-        </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">New Password</label>
-          <input type="password" id="chpw-new" placeholder="Min 6 characters" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-        </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Confirm New Password</label>
-          <input type="password" id="chpw-confirm" placeholder="Re-enter new password" style="width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
-        </div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Current Password</label>
+          <input type="password" id="chpw-current" placeholder="Enter current password" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">New Password</label>
+          <input type="password" id="chpw-new" placeholder="Min 6 characters" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Confirm New Password</label>
+          <input type="password" id="chpw-confirm" placeholder="Re-enter new password" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>
         <div id="chpw-status" style="display:none;padding:8px 12px;border-radius:7px;font-size:12px"></div>
-        <button onclick="changePassword()" style="padding:10px;background:#1a3a5c;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Save New Password</button>
+        <button onclick="changePassword()" style="padding:10px;background:var(--accent);border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Save New Password</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- EDIT ROW MODAL -->
+<div id="edit-row-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:460px;margin:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="font-size:15px;font-weight:700;color:var(--text)">✎ Edit Payment</div>
+      <span onclick="closeEditRow()" style="font-size:20px;color:var(--text3);cursor:pointer">×</span>
+    </div>
+    <div id="edit-row-info" style="background:var(--surface2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text2);margin-bottom:16px"></div>
+    <div style="display:grid;gap:12px">
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Amount Paid</label>
+        <input type="number" id="edit-amt" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:monospace;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Reason for edit</label>
+        <input type="text" id="edit-reason" placeholder="e.g. Corrected payment amount" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box">
+      </div>
+      <div id="edit-preview" style="background:var(--surface2);border-radius:7px;padding:10px 14px;font-size:11px;color:var(--text3)"></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeEditRow()" style="flex:1;padding:10px;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
+        <button onclick="saveEditRow()" style="flex:2;padding:10px;background:var(--accent);border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="topbar">
-  <h1>&#9654; Bonus Audit Tool v2</h1>
-  <div style="display:flex;align-items:center;gap:14px">
-    <span id="period-lbl">No period selected</span>
-    <button onclick="openDeployModal()" style="background:#2da44e;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
-      &#9650; Deploy to GitHub
-    </button>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span id="topbar-user" style="font-size:11px;color:#94a3b8;font-family:monospace"></span>
-      <button onclick="document.getElementById('chpw-modal').style.display='flex';umTab('add')" style="background:#334155;border:none;color:#94a3b8;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">👥 Users</button>
-      <button onclick="logoutUser()" style="background:#2d1b1b;border:none;color:#fca5a5;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Sign out</button>
+  <h1>▲ Bonus <span>Audit</span> Tool</h1>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="period-lbl" style="font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)">No period selected</span>
+    <span id="topbar-user" style="font-size:11px;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px;border:1px solid var(--border)">👤 Admin (admin)</span>
+    <!-- Settings dropdown -->
+    <div style="position:relative">
+      <button onclick="toggleSettings()" id="settings-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
+        ⚙ Settings ▼
+      </button>
+      <div id="settings-dropdown" style="display: none; position: absolute; right: 0px; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; min-width: 220px; box-shadow: rgba(0, 0, 0, 0.4) 0px 8px 32px; z-index: 999; overflow: hidden;">
+
+        <!-- Backend config -->
+        <button onclick="openBackendConfig();closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
+          ☁ Backend (Google Sheets)
+        </button>
+
+        <!-- Theme -->
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Theme</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="setTheme('dark');event.stopPropagation()" id="theme-dark" title="Dark" style="flex: 1 1 0%; padding: 6px; border-radius: 6px; border: 2px solid transparent; background: rgb(10, 15, 30); color: rgb(148, 163, 184); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transform: scale(1);">● Dark</button>
+            <button onclick="setTheme('medium');event.stopPropagation()" id="theme-medium" title="Medium" style="flex: 1 1 0%; padding: 6px; border-radius: 6px; border: 2px solid transparent; background: rgb(37, 51, 70); color: rgb(154, 179, 204); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transform: scale(1);">● Medium</button>
+            <button onclick="setTheme('light');event.stopPropagation()" id="theme-light" title="Light" style="flex: 1 1 0%; padding: 6px; border-radius: 6px; border: 2px solid var(--accent); background: rgb(240, 244, 248); color: rgb(51, 65, 85); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transform: scale(1.2);">● Light</button>
+          </div>
+        </div>
+
+        <!-- Admin-only items -->
+        <div id="settings-admin-section">
+          <button id="deploy-btn-topbar" onclick="openDeployModal();closeSettings()" style="display: block; width: 100%; text-align: left; padding: 10px 14px; border-top-width: medium; border-right-width: medium; border-left-width: medium; border-top-style: none; border-right-style: none; border-left-style: none; border-top-color: currentcolor; border-right-color: currentcolor; border-left-color: currentcolor; border-image: initial; background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; border-bottom: 1px solid var(--border);">
+            ▲ Deploy to GitHub
+          </button>
+          <button id="users-btn-topbar" onclick="document.getElementById('chpw-modal').style.display='flex';umTab('add');closeSettings()" style="display: block; width: 100%; text-align: left; padding: 10px 14px; border-top-width: medium; border-right-width: medium; border-left-width: medium; border-top-style: none; border-right-style: none; border-left-style: none; border-top-color: currentcolor; border-right-color: currentcolor; border-left-color: currentcolor; border-image: initial; background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; border-bottom: 1px solid var(--border);">
+            👥 Manage users
+          </button>
+        </div>
+
+        <!-- All users -->
+        <button onclick="document.getElementById('chpw-modal').style.display='flex';umTab('chpw');closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
+          🔒 Change password
+        </button>
+        <button onclick="logoutUser();closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          ← Sign out
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- DEPLOY MODAL -->
-<div id="deploy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center">
+<div id="deploy-modal" style="display: flex; position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.55); z-index: 999; align-items: center; justify-content: center;">
   <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:500px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
       <div>
-        <div style="font-size:16px;font-weight:700;color:#1a3a5c">&#9650; Deploy to GitHub Pages</div>
+        <div style="font-size:16px;font-weight:700;color:#1a3a5c">▲ Deploy to GitHub Pages</div>
         <div style="font-size:11px;color:#888;margin-top:3px">One-click update your live site</div>
       </div>
-      <span onclick="closeDeployModal()" style="font-size:22px;color:#aaa;cursor:pointer;line-height:1">&#215;</span>
+      <span onclick="closeDeployModal()" style="font-size:22px;color:#aaa;cursor:pointer;line-height:1">×</span>
     </div>
 
     <!-- Step 1: Token -->
@@ -209,49 +274,46 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
       <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px">Step 1 of 2 — GitHub Personal Access Token</div>
       <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.6">
         You need a token so this tool can push files to your GitHub repo.<br>
-        <a href="https://github.com/settings/tokens/new?scopes=repo&description=BonusAuditTool" target="_blank" style="color:#1a3a5c;font-weight:600">&#8599; Click here to create one</a>
+        <a href="https://github.com/settings/tokens/new?scopes=repo&amp;description=BonusAuditTool" target="_blank" style="color:#1a3a5c;font-weight:600">↗ Click here to create one</a>
         &nbsp;(check <b>repo</b> scope → Generate → copy it)
       </div>
       <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Personal Access Token</label>
-      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-        style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px">
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px">
 
       <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px">Step 2 of 2 — Repository details</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div>
           <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">GitHub Username</label>
-          <input type="text" id="gh-user" placeholder="e.g. john123"
-            style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
+          <input type="text" id="gh-user" placeholder="e.g. john123" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
         </div>
         <div>
           <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Repository Name</label>
-          <input type="text" id="gh-repo" placeholder="e.g. bonus-audit-tool"
-            style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
+          <input type="text" id="gh-repo" placeholder="e.g. bonus-audit-tool" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
         </div>
       </div>
 
       <div style="background:#fffcf2;border:1px solid #e8e0c8;border-radius:7px;padding:9px 12px;font-size:11px;color:#633806;margin-bottom:16px;line-height:1.6">
-        &#9888; Your token is used only for this upload and is <b>never stored anywhere</b>. It stays in memory only while this page is open.
+        ⚠ Your token is used only for this upload and is <b>never stored anywhere</b>. It stays in memory only while this page is open.
       </div>
 
-      <div id="deploy-status" style="display:none;padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:12px"></div>
+      <div id="deploy-status" style="display: block; padding: 9px 12px; border-radius: 7px; font-size: 12px; margin-bottom: 12px; background: rgb(240, 244, 248); border: 1px solid rgb(197, 212, 240); color: rgb(12, 68, 124);">↻ File found — updating...</div>
 
       <div style="display:flex;gap:8px">
         <button onclick="closeDeployModal()" style="flex:1;padding:10px;border:1px solid #ddd;background:#fff;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
-        <button onclick="runDeploy()" id="deploy-btn" style="flex:2;padding:10px;background:#2da44e;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">&#9650; Deploy now</button>
+        <button onclick="runDeploy()" id="deploy-btn" style="flex:2;padding:10px;background:#2da44e;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" disabled="">Uploading...</button>
       </div>
     </div>
   </div>
 </div>
 <div class="wrap">
   <div class="tabs">
-    <div class="tab active" id="tabBtn-setup" onclick="goTab('setup')">&#9881; Setup</div>
-    <div class="tab" id="tabBtn-audit" onclick="goTab('audit')">&#9776; Audit table</div>
-    <div class="tab" id="tabBtn-repsum" onclick="goTab('repsum')">&#128100; Rep summary</div>
-    <div class="tab" id="tabBtn-dups" onclick="goTab('dups')">&#9888; Duplicates <span class="tag" id="dup-cnt" style="display:none">0</span></div>
-    <div class="tab" id="tabBtn-history" onclick="goTab('history')">&#128336; History <span class="tag" id="hcnt">0</span></div>
-    <div class="tab" id="tabBtn-dashboard" onclick="goTab('dashboard')">&#9632; Dashboard</div>
-    <div class="tab" id="tabBtn-refunds" onclick="goTab('refunds')">&#8635; Refunds <span class="tag" id="refund-cnt" style="display:none;background:#e24b4a">0</span></div>
+    <div class="tab active" id="tabBtn-dashboard" onclick="goTab('dashboard')">■ Dashboard</div>
+    <div class="tab" id="tabBtn-setup" onclick="goTab('setup')">⚙ Setup</div>
+    <div class="tab" id="tabBtn-audit" onclick="goTab('audit')">☰ Audit table</div>
+    <div class="tab" id="tabBtn-refunds" onclick="goTab('refunds')">↻ Refunds <span class="tag" id="refund-cnt" style="display:none;background:#e24b4a">0</span></div>
+    <div class="tab" id="tabBtn-repsum" onclick="goTab('repsum')">👤 Rep summary</div>
+    <div class="tab" id="tabBtn-dups" onclick="goTab('dups')">⚠ Duplicates <span class="tag" id="dup-cnt" style="display:none">0</span></div>
+    <div class="tab" id="tabBtn-history" onclick="goTab('history')">🕐 History <span class="tag" id="hcnt">1</span></div>
   </div>
 
   <!-- SETUP -->
@@ -260,7 +322,7 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
       <div class="card-title">Audit period</div>
       <select id="sel-month" style="font-size:12px;padding:6px 10px;border:1px solid #ddd;border-radius:6px">
         <option>January 2026</option><option>February 2026</option><option>March 2026</option>
-        <option selected>April 2026</option><option>May 2026</option><option>June 2026</option>
+        <option selected="">April 2026</option><option>May 2026</option><option>June 2026</option>
         <option>July 2026</option><option>August 2026</option><option>September 2026</option>
         <option>October 2026</option><option>November 2026</option><option>December 2026</option>
         <option>January 2027</option><option>February 2027</option><option>March 2027</option>
@@ -270,41 +332,215 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     <div class="card">
       <div class="card-title">Team configuration</div>
       <p style="font-size:12px;color:#666;margin-bottom:12px;">Reps in the same team pool their organic sales against their combined target. Meta incentives are always individual.</p>
-      <div id="team-config-area"></div>
+      <div id="team-config-area">
+    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="font-weight:700;font-size:13px;min-width:70px;">👥 Team 1</div>
+      <div style="flex:1;font-size:12px;color:#444;">
+        Members: <b>Kevin + Dinesh</b>
+        &nbsp;·&nbsp;
+        Combined target: <b>₹19,00,000</b>
+      </div>
+      <div style="font-size:11px;color:#888;">
+        Kevin: ₹4,00,000 @ 10% &nbsp;|&nbsp; Dinesh: ₹15,00,000 @ 5%
+      </div>
+    </div>
+    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="font-weight:700;font-size:13px;min-width:70px;">👥 Team 2</div>
+      <div style="flex:1;font-size:12px;color:#444;">
+        Members: <b>Mathiew + Hari</b>
+        &nbsp;·&nbsp;
+        Combined target: <b>₹16,00,000</b>
+      </div>
+      <div style="font-size:11px;color:#888;">
+        Mathiew: ₹4,00,000 @ 10% &nbsp;|&nbsp; Hari: ₹12,00,000 @ 5%
+      </div>
+    </div></div>
     </div>
 
     <div class="card">
       <div class="card-title">Sales rep configuration</div>
       <div class="formula">
         <b>Organic bonus eligibility</b>: Only if team's combined organic net &gt; combined target<br>
-        <b>Organic incentive</b> = Team surplus &times; Rep's share% &times; Rep organic rate%<br>
-        <b>Meta 1000 incentive</b> = Meta 1000 net &times; 5%<br>
-        <b>Meta 89rs + Tamil Instagram</b> = Net &times; 8%<br>
-        <b>Net revenue</b> = Amount Paid &minus; GST(18%) &minus; Mgmt cost(2%)<br>
+        <b>Organic incentive</b> = Team surplus × Rep's share% × Rep organic rate%<br>
+        <b>Meta 1000 incentive</b> = Meta 1000 net × 5%<br>
+        <b>Meta 89rs + Tamil Instagram</b> = Net × 8%<br>
+        <b>Net revenue</b> = Amount Paid − GST(18%) − Mgmt cost(2%)<br>
         <b>Final payout</b> = Organic + Meta 1000 + Meta 89rs + Tamil Instagram incentives
       </div>
-      <div class="rep-grid" id="rep-grid"></div>
-      <button class="add-rep" onclick="addRep()">&#43; Add sales rep</button>
+      <div class="rep-grid" id="rep-grid">
+    <div class="rep-card">
+      <span class="rem" onclick="removeRep(1)">×</span>
+      <div class="rep-name"><div class="rav">K</div>Kevin</div>
+      <div class="rep-field"><label>Rep name</label>
+        <input type="text" value="Kevin" placeholder="e.g. Kevin" onchange="updRep(1,'name',this.value)"></div>
+      <div class="rep-field"><label>Target excl.GST (₹)</label>
+        <input type="number" value="400000" placeholder="e.g. 400000" onchange="updRep(1,'target',parseFloat(this.value)||0)"></div>
+      <div class="rep-field"><label>Organic rate %</label>
+        <select onchange="updRep(1,'orgRate',parseFloat(this.value))">
+          <option value="5">5%</option>
+          <option value="8">8%</option>
+          <option value="10" selected="">10%</option>
+          <option value="12">12%</option>
+        </select></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
+        Formula: (Organic net − ₹4,00,000) × 10%
+        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
+      </div>
+    </div>
+    <div class="rep-card">
+      <span class="rem" onclick="removeRep(2)">×</span>
+      <div class="rep-name"><div class="rav">D</div>Dinesh</div>
+      <div class="rep-field"><label>Rep name</label>
+        <input type="text" value="Dinesh" placeholder="e.g. Kevin" onchange="updRep(2,'name',this.value)"></div>
+      <div class="rep-field"><label>Target excl.GST (₹)</label>
+        <input type="number" value="1500000" placeholder="e.g. 400000" onchange="updRep(2,'target',parseFloat(this.value)||0)"></div>
+      <div class="rep-field"><label>Organic rate %</label>
+        <select onchange="updRep(2,'orgRate',parseFloat(this.value))">
+          <option value="5" selected="">5%</option>
+          <option value="8">8%</option>
+          <option value="10">10%</option>
+          <option value="12">12%</option>
+        </select></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
+        Formula: (Organic net − ₹15,00,000) × 5%
+        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
+      </div>
+    </div>
+    <div class="rep-card">
+      <span class="rem" onclick="removeRep(3)">×</span>
+      <div class="rep-name"><div class="rav">M</div>Mathiew</div>
+      <div class="rep-field"><label>Rep name</label>
+        <input type="text" value="Mathiew" placeholder="e.g. Kevin" onchange="updRep(3,'name',this.value)"></div>
+      <div class="rep-field"><label>Target excl.GST (₹)</label>
+        <input type="number" value="400000" placeholder="e.g. 400000" onchange="updRep(3,'target',parseFloat(this.value)||0)"></div>
+      <div class="rep-field"><label>Organic rate %</label>
+        <select onchange="updRep(3,'orgRate',parseFloat(this.value))">
+          <option value="5">5%</option>
+          <option value="8">8%</option>
+          <option value="10" selected="">10%</option>
+          <option value="12">12%</option>
+        </select></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
+        Formula: (Organic net − ₹4,00,000) × 10%
+        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
+      </div>
+    </div>
+    <div class="rep-card">
+      <span class="rem" onclick="removeRep(4)">×</span>
+      <div class="rep-name"><div class="rav">H</div>Hari</div>
+      <div class="rep-field"><label>Rep name</label>
+        <input type="text" value="Hari" placeholder="e.g. Kevin" onchange="updRep(4,'name',this.value)"></div>
+      <div class="rep-field"><label>Target excl.GST (₹)</label>
+        <input type="number" value="1200000" placeholder="e.g. 400000" onchange="updRep(4,'target',parseFloat(this.value)||0)"></div>
+      <div class="rep-field"><label>Organic rate %</label>
+        <select onchange="updRep(4,'orgRate',parseFloat(this.value))">
+          <option value="5" selected="">5%</option>
+          <option value="8">8%</option>
+          <option value="10">10%</option>
+          <option value="12">12%</option>
+        </select></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
+        Formula: (Organic net − ₹12,00,000) × 5%
+        &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
+      </div>
+    </div></div>
+      <button class="add-rep" onclick="addRep()">+ Add sales rep</button>
     </div>
 
     <div class="card">
       <div class="card-title">Upload each rep's incentive report</div>
       <p style="font-size:12px;color:#666;margin-bottom:14px;">Upload one Excel file per rep. Each file can have up to 3 sheet tabs: Organic, Meta AD, Tamil Instagram — detected automatically.</p>
-      <div id="rep-upload-area"></div>
+      <div id="rep-upload-area">
+    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
+        <div class="rav">K</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;">Kevin</div>
+          <div style="font-size:10px;color:#888;">Target ₹4,00,000 · Organic 10%</div>
+        </div>
+      </div>
+      <div class="ub" id="box-rep-1" onclick="document.getElementById('in-rep-1').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
+        <input type="file" id="in-rep-1" accept=".xlsx,.xls">
+        <span class="ub-clear" onclick="clrRepFile(1,event)">✕</span>
+        <div style="font-size:20px;">📄</div>
+        <div>
+          <div class="ub-title">Kevin's report (.xlsx)</div>
+          <div class="ub-sub" id="lbl-rep-1">Sheets: Organic · Meta AD · Tamil Instagram</div>
+        </div>
+      </div>
+      <div id="pills-rep-1" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
+    </div>
+    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
+        <div class="rav">D</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;">Dinesh</div>
+          <div style="font-size:10px;color:#888;">Target ₹15,00,000 · Organic 5%</div>
+        </div>
+      </div>
+      <div class="ub" id="box-rep-2" onclick="document.getElementById('in-rep-2').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
+        <input type="file" id="in-rep-2" accept=".xlsx,.xls">
+        <span class="ub-clear" onclick="clrRepFile(2,event)">✕</span>
+        <div style="font-size:20px;">📄</div>
+        <div>
+          <div class="ub-title">Dinesh's report (.xlsx)</div>
+          <div class="ub-sub" id="lbl-rep-2">Sheets: Organic · Meta AD · Tamil Instagram</div>
+        </div>
+      </div>
+      <div id="pills-rep-2" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
+    </div>
+    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
+        <div class="rav">M</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;">Mathiew</div>
+          <div style="font-size:10px;color:#888;">Target ₹4,00,000 · Organic 10%</div>
+        </div>
+      </div>
+      <div class="ub" id="box-rep-3" onclick="document.getElementById('in-rep-3').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
+        <input type="file" id="in-rep-3" accept=".xlsx,.xls">
+        <span class="ub-clear" onclick="clrRepFile(3,event)">✕</span>
+        <div style="font-size:20px;">📄</div>
+        <div>
+          <div class="ub-title">Mathiew's report (.xlsx)</div>
+          <div class="ub-sub" id="lbl-rep-3">Sheets: Organic · Meta AD · Tamil Instagram</div>
+        </div>
+      </div>
+      <div id="pills-rep-3" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
+    </div>
+    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
+        <div class="rav">H</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;">Hari</div>
+          <div style="font-size:10px;color:#888;">Target ₹12,00,000 · Organic 5%</div>
+        </div>
+      </div>
+      <div class="ub" id="box-rep-4" onclick="document.getElementById('in-rep-4').click()" style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
+        <input type="file" id="in-rep-4" accept=".xlsx,.xls">
+        <span class="ub-clear" onclick="clrRepFile(4,event)">✕</span>
+        <div style="font-size:20px;">📄</div>
+        <div>
+          <div class="ub-title">Hari's report (.xlsx)</div>
+          <div class="ub-sub" id="lbl-rep-4">Sheets: Organic · Meta AD · Tamil Instagram</div>
+        </div>
+      </div>
+      <div id="pills-rep-4" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
+    </div></div>
     </div>
       <div class="card-title" style="margin-top:10px">Master payment sheet &amp; Refund report (for verification)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-wrap:wrap;">
         <div class="ub" id="box-master" onclick="document.getElementById('in-master').click()" style="text-align:left;display:flex;align-items:center;gap:10px;padding:12px 16px">
           <input type="file" id="in-master" accept=".xlsx,.xls,.csv">
-          <span class="ub-clear" onclick="clrSheet('master',event)">&#10005;</span>
-          <div style="font-size:20px">&#128203;</div>
+          <span class="ub-clear" onclick="clrSheet('master',event)">✕</span>
+          <div style="font-size:20px">📋</div>
           <div><div class="ub-title">Master payment sheet</div>
           <div class="ub-sub" id="lbl-master">S No, Name, Program, Amount, Total, Pending, Status</div></div>
         </div>
         <div class="ub" id="box-refund-setup" onclick="document.getElementById('in-refund-setup').click()" style="text-align:left;display:flex;align-items:center;gap:10px;padding:12px 16px">
           <input type="file" id="in-refund-setup" accept=".xlsx,.xls,.csv">
-          <span class="ub-clear" id="refund-setup-clear" onclick="clrRefundSetup(event)">&#10005;</span>
-          <div style="font-size:20px;color:#e24b4a">&#8635;</div>
+          <span class="ub-clear" id="refund-setup-clear" onclick="clrRefundSetup(event)">✕</span>
+          <div style="font-size:20px;color:#e24b4a">↻</div>
           <div><div class="ub-title">Refund Tracker (.xlsx)</div>
           <div class="ub-sub" id="lbl-refund-setup">Student Name · Net Refund Amount · Approved By · Reason</div></div>
         </div>
@@ -312,12 +548,12 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     </div>
 
     <div class="btn-row">
-      <button class="primary" onclick="runAudit()">&#9654; Run audit</button>
-      <button class="success" onclick="exportCSV()">&#8595; Export audit CSV</button>
-      <button class="success" onclick="exportPayout()">&#8595; Export payout sheet</button>
-      <button onclick="window.print()">&#128438; Print</button>
-      <button onclick="exportDups()" class="danger">&#8595; Export duplicates CSV</button>
-      <button class="danger" onclick="clearAll()">&#10005; Clear all</button>
+      <button class="primary" onclick="runAudit()">▶ Run audit</button>
+      <button class="success" onclick="exportCSV()">↓ Export audit CSV</button>
+      <button class="success" onclick="exportPayout()">↓ Export payout sheet</button>
+      <button onclick="window.print()">🖶 Print</button>
+      <button onclick="exportDups()" class="danger">↓ Export duplicates CSV</button>
+      <button class="danger" onclick="clearAll()">✕ Clear all</button>
     </div>
     <div id="run-st" style="font-size:12px;color:#1d9e75;font-weight:500"></div>
   </div>
@@ -334,17 +570,36 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     </div>
     <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:11px;color:#888;font-weight:600;">Filter by rep:</span>
-      <button onclick="setRepFilter('')" id="repbtn-all"
-        style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#1a3a5c;color:#fff;cursor:pointer;font-weight:600;">
+      <button onclick="setRepFilter('')" id="repbtn-all" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#1a3a5c;color:#fff;cursor:pointer;font-weight:600;">
         All reps
       </button>
-      <div id="rep-quick-btns" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      <div id="rep-quick-btns" style="display:flex;gap:6px;flex-wrap:wrap;">
+    <button onclick="setRepFilter('Kevin')" id="repbtn-1" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
+      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">K</span>
+      Kevin
+    </button>
+    <button onclick="setRepFilter('Dinesh')" id="repbtn-2" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
+      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">D</span>
+      Dinesh
+    </button>
+    <button onclick="setRepFilter('Mathiew')" id="repbtn-3" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
+      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">M</span>
+      Mathiew
+    </button>
+    <button onclick="setRepFilter('Hari')" id="repbtn-4" style="padding:4px 12px;font-size:12px;border-radius:20px;border:1px solid #1a3a5c;background:#fff;color:#1a3a5c;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px;">
+      <span style="width:18px;height:18px;border-radius:50%;background:#eef2fc;color:#1a3a5c;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">H</span>
+      Hari
+    </button></div>
     </div>
     <div class="filter-row">
-      <select id="f-rep" onchange="renderTable()" style="display:none"><option value="">All reps</option></select>
+      <select id="f-month" onchange="renderTable()"><option value="">All months</option></select>
+      <select id="f-rep" onchange="renderTable()" style="display:none"><option value="">All reps</option><option>Kevin</option><option>Dinesh</option><option>Mathiew</option><option>Hari</option></select>
       <select id="f-sheet" onchange="renderTable()">
-        <option value="">All sheets</option>
-        <option>Organic</option><option>Meta AD</option><option>Tamil Instagram</option>
+        <option value="">All sources</option>
+        <option value="Organic">Organic</option>
+        <option value="Meta 1000">Meta 1000</option>
+        <option value="Meta 89rs">Meta 89rs</option>
+        <option value="Tamil Instagram">Tamil Instagram</option>
       </select>
       <select id="f-status" onchange="renderTable()">
         <option value="">All status</option>
@@ -352,7 +607,7 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
         <option value="Not found">Not found</option><option value="No master">No master</option>
       </select>
       <input type="text" id="f-search" placeholder="Search name…" oninput="renderTable()">
-      <span id="rcnt" style="font-size:11px;color:#aaa"></span>
+      <span id="rcnt" style="font-size:11px;color:var(--text3)"></span>
     </div>
     <div class="tbl-wrap">
       <table>
@@ -361,18 +616,21 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
           <th style="width:130px">Name</th>
           <th style="width:160px">Email</th>
           <th style="width:60px">Rep</th>
-          <th style="width:70px">Sheet</th>
           <th style="width:100px">Lead source</th>
           <th style="width:80px">Amt paid</th>
           <th style="width:70px">GST</th>
+          <th style="width:70px">Mgmt 2%</th>
           <th style="width:80px">Net rev.</th>
+          <th style="width:70px" title="Amount paid above master sheet amount">Extra paid</th>
+          <th style="width:70px" title="Round-off difference (≤₹1)">Round-off</th>
           <th style="width:50px">Rate</th>
-          <th style="width:95px" title="Per-row incentive before target deduction">Row incentive*</th>
+          <th style="width:95px" title="Per-row incentive after extra payment deduction">Row incentive*</th>
           <th style="width:90px">Master rec.</th>
           <th style="width:80px">Status</th>
           <th style="min-width:180px">Remark</th>
+          <th style="width:60px">Edit</th>
         </tr></thead>
-        <tbody id="tbody"><tr><td colspan="14" class="empty">Run audit to see results</td></tr></tbody>
+        <tbody id="tbody"><tr><td colspan="15" class="empty">Run audit to see results</td></tr></tbody>
         <tfoot><tr id="tfoot"></tr></tfoot>
       </table>
     </div>
@@ -382,8 +640,8 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     </div>
 
     <div style="font-size:11px;color:#888;margin-top:8px;padding:8px 12px;background:#fffcf0;border:1px solid #e8e0c8;border-radius:6px;">
-      <b>* Row incentive</b> = Net revenue &times; rate% (flat per row).
-      <b>Final payout</b> applies target deduction: (Organic net &minus; Target) &times; rate%.
+      <b>* Row incentive</b> = Net revenue × rate% (flat per row).
+      <b>Final payout</b> applies target deduction: (Organic net − Target) × rate%.
       See <b>Rep summary</b> tab for correct final payout per rep.
     </div>
   </div>
@@ -406,26 +664,47 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
         <div style="font-size:11px;color:#888;margin-top:2px">Each month's audit is saved automatically when you run audit.</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="success" onclick="exportHistoryJSON()">&#8595; Backup history (.json)</button>
-        <button class="primary" onclick="document.getElementById('in-hist-import').click()">&#8593; Restore history</button>
+        <button class="success" onclick="exportHistoryJSON()">↓ Backup history (.json)</button>
+        <button class="primary" onclick="document.getElementById('in-hist-import').click()">↑ Restore history</button>
         <input type="file" id="in-hist-import" accept=".json" style="display:none" onchange="importHistoryJSON(this)">
-        <button class="success" onclick="exportAllMonths()">&#8595; Export summary CSV</button>
-        <button class="danger" onclick="if(confirm('Clear ALL saved history?')){HIST=[];persistHist();renderHistList();}">&#10005; Clear all</button>
+        <button class="success" onclick="exportAllMonths()">↓ Export summary CSV</button>
+        <button class="danger" onclick="if(confirm('Clear ALL saved history?')){HIST=[];persistHist();renderHistList();}">✕ Clear all</button>
       </div>
     </div>
     <div style="background:#fffcf2;border:1px solid #e8e0c8;border-radius:7px;padding:9px 14px;font-size:11px;color:#633806;margin-bottom:12px;line-height:1.6">
-      <b>&#128190; How history works:</b> History saves automatically every time you run audit.
+      <b>💾 How history works:</b> History saves automatically every time you run audit.
       If you open this file from a <b>local folder</b>, use <b>Backup history</b> after each session and <b>Restore history</b> when you reopen the file.
       If hosted on <b>GitHub Pages</b>, history persists automatically — no backup needed.
     </div>
-    <div id="hlist"><div class="empty">No audits saved yet. Run an audit first, or restore a previous backup.</div></div>
+    <div id="hlist"><div style="font-size:11px;color:#888;padding:8px 14px;background:#fffcf2;border-bottom:1px solid #e8e0c8;">💾 Data saved in browser storage — persists when you close and reopen this file.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0ec;font-size:12px">
+      <div>
+        <div style="font-weight:700;font-size:13px">April 2026</div>
+        <div style="color:#888;font-size:11px;margin-top:2px">
+          Saved 12/6/2026 10:59 am · 179 entries · 4 rep(s)
+          
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="color:#1a3a5c;cursor:pointer;font-weight:600;font-size:11px;text-decoration:underline" onclick="loadHist(0)">Load →</span>
+        <span style="color:#e24b4a;cursor:pointer;font-weight:600;font-size:11px" onclick="deleteHist(0)" title="Delete this month">✕</span>
+      </div>
+    </div></div>
   </div>
-</div>
+
 
   <!-- DASHBOARD -->
   <div class="tab-content" id="tab-dashboard">
     <div id="dashboard-empty" class="empty" style="padding:48px">Run audit to see dashboard</div>
     <div id="dashboard-content" style="display:none">
+
+      <!-- Month filter -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <select id="db-month-filter" onchange="renderDashboard()" style="font-size:12px;padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-family:inherit;min-width:160px">
+          <option value="">All months combined</option>
+        </select>
+        <span style="font-size:11px;color:var(--text3)">Filter dashboard by month</span>
+      </div>
 
       <!-- Top KPIs -->
       <div class="kpi-grid" id="db-kpis" style="margin-bottom:16px"></div>
@@ -444,7 +723,7 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
 
       <!-- Refund impact section -->
       <div class="card" id="db-refund-card" style="display:none;margin-bottom:14px;border-left:3px solid #e24b4a">
-        <div class="card-title" style="color:#e24b4a">&#9888; Refund impact on payouts</div>
+        <div class="card-title" style="color:#e24b4a">⚠ Refund impact on payouts</div>
         <div id="db-refund-summary"></div>
       </div>
 
@@ -470,7 +749,7 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
 
       <!-- Refund log table -->
       <div class="card" id="db-refund-table-card" style="display:none">
-        <div class="card-title" style="color:#e24b4a">Refund log (&#8635; from uploaded tracker)</div>
+        <div class="card-title" style="color:#e24b4a">Refund log (↻ from uploaded tracker)</div>
         <div class="tbl-wrap">
           <table>
             <thead><tr>
@@ -496,14 +775,13 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     </div>
 
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title">&#128196; Upload refund report (Excel)</div>
+      <div class="card-title">📄 Upload refund report (Excel)</div>
       <p style="font-size:12px;color:#666;margin-bottom:12px;">Upload your Refund Tracker. The tool <b>auto-matches each student name</b> to the correct sales rep from the uploaded incentive reports — no Sales Rep column needed.</p>
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-        <div class="ub" id="box-refund-upload" onclick="document.getElementById('in-refund-upload').click()"
-          style="flex:1;min-width:260px;padding:12px 16px;text-align:left;display:flex;align-items:center;gap:10px;position:relative;">
+        <div class="ub" id="box-refund-upload" onclick="document.getElementById('in-refund-upload').click()" style="flex:1;min-width:260px;padding:12px 16px;text-align:left;display:flex;align-items:center;gap:10px;position:relative;">
           <input type="file" id="in-refund-upload" accept=".xlsx,.xls,.csv">
-          <span class="ub-clear" id="refund-upload-clear" onclick="clearRefundUpload(event)" style="display:none">&#10005;</span>
-          <div style="font-size:22px">&#128203;</div>
+          <span class="ub-clear" id="refund-upload-clear" onclick="clearRefundUpload(event)" style="display:none">✕</span>
+          <div style="font-size:22px">📋</div>
           <div>
             <div class="ub-title">Refund report (.xlsx / .csv)</div>
             <div class="ub-sub" id="lbl-refund-upload">Date · Student Name · Email · Sales Rep · Refund Amount · Incentive % · Reason</div>
@@ -518,17 +796,17 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
       <div style="font-size:11px;color:#888;line-height:1.7;">
         <b>Supports two formats — rep auto-detected from incentive reports:</b><br>
         <span style="font-family:monospace;background:#f0faf6;color:#085041;padding:3px 10px;border-radius:4px;display:inline-block;margin-top:6px;font-size:11px;">
-          &#10003; Refund Tracker format &nbsp;—&nbsp; Student Name · Email ID · Net Refund Amount · Refund Request Date · Approved By · Reason for Refund
+          ✓ Refund Tracker format &nbsp;—&nbsp; Student Name · Email ID · Net Refund Amount · Refund Request Date · Approved By · Reason for Refund
         </span><br>
         <span style="font-family:monospace;background:#f5f5f0;padding:3px 10px;border-radius:4px;display:inline-block;margin-top:5px;font-size:11px;">
-          &#10003; Generic format &nbsp;—&nbsp; Date · Student Name · Email · Sales Rep · Refund Amount · Incentive % · Reason
+          ✓ Generic format &nbsp;—&nbsp; Date · Student Name · Email · Sales Rep · Refund Amount · Incentive % · Reason
         </span><br>
-        <span style="color:#ba7517;font-size:11px;margin-top:5px;display:inline-block;">&#9888; Rows with status <b>Rejected</b> or <b>Pending</b> are skipped. The <b>Sales Rep is auto-detected</b> by matching the Student Name against all uploaded incentive reports — no manual rep selection needed.</span>
+        <span style="color:#ba7517;font-size:11px;margin-top:5px;display:inline-block;">⚠ Rows with status <b>Rejected</b> or <b>Pending</b> are skipped. The <b>Sales Rep is auto-detected</b> by matching the Student Name against all uploaded incentive reports — no manual rep selection needed.</span>
       </div>
     </div>
 
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title">&#9998; Log a new refund manually</div>
+      <div class="card-title">✎ Log a new refund manually</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px">
         <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Refund date</label>
           <input type="text" id="rf-date" placeholder="e.g. 05-Apr-26" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
@@ -558,24 +836,23 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     <div class="card">
       <div class="card-title">Refund log</div>
       <div class="filter-row" style="margin-bottom:10px">
-        <select id="rf-filter-rep" onchange="renderRefundTable()" style="font-size:12px;padding:6px 10px;border:1px solid #ddd;border-radius:6px">
-          <option value="">All reps</option>
-        </select>
-        <input type="text" id="rf-search" placeholder="Search student…" oninput="renderRefundTable()" style="font-size:12px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;width:160px">
+        <select id="rf-filter-month" onchange="renderRefundTable()"><option value="">All months</option></select>
+        <select id="rf-filter-rep" onchange="renderRefundTable()"><option value="">All reps</option><option>Kevin</option><option>Dinesh</option><option>Mathiew</option><option>Hari</option></select>
+        <input type="text" id="rf-search" placeholder="Search student…" oninput="renderRefundTable()" style="width:160px">
       </div>
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>#</th><th>Date</th><th>Student</th><th>Email</th>
+            <th>#</th><th>Month</th><th>Date</th><th>Student</th><th>Email</th>
             <th>Sales rep</th><th>Refund amt</th><th>Inc%</th>
-            <th style="color:#e24b4a">Deducted from bonus</th><th>Reason</th><th></th>
+            <th style="color:var(--red)">Deducted</th><th>Reason</th><th></th>
           </tr></thead>
           <tbody id="refund-tbody"><tr><td colspan="10" class="empty">No refunds logged yet</td></tr></tbody>
           <tfoot><tr id="refund-tfoot"></tr></tfoot>
         </table>
       </div>
       <div style="margin-top:10px;display:flex;gap:8px">
-        <button class="success" onclick="exportRefundCSV()">&#8595; Export refunds CSV</button>
+        <button class="success" onclick="exportRefundCSV()">↓ Export refunds CSV</button>
       </div>
     </div>
 
@@ -585,7 +862,7 @@ tfoot td{background:#f5f5f0;font-weight:700;border-top:2px solid #e0ddd4;font-fa
     </div>
   </div>
 
-</div><!-- end wrap -->
+<!-- end wrap -->
 
 <script>
 /* ══ RATES & CONFIG ══ */
@@ -604,10 +881,18 @@ function categorizeLead(lead){
   return{cat:'unknown',badge:'b-unk',label:lead||'Unknown',rate:null};
 }
 
-function netRev(amt){
-  const gst=Math.round(amt*18/118);
-  const mgmt=Math.round((amt-gst)*2/100);
-  return{gst,mgmt,net:amt-gst-mgmt};
+function netRev(amt, cat){
+  /* Amount paid is GST inclusive.
+     GST  = Amount × 18/118  (extract from inclusive)
+     Base = Amount − GST
+     Mgmt = Base × 2%  (inorganic only: Meta 1000, Meta 89rs, Tamil Instagram)
+     Net  = Base − Mgmt */
+  const gst  = amt * 18 / 118;
+  const base = amt - gst;
+  const isInorganic = cat==='meta1k' || cat==='meta89';
+  const mgmt = isInorganic ? base * 2 / 100 : 0;
+  const net  = base - mgmt;
+  return{gst, mgmt, net};
 }
 
 /* ══ STATE ══ */
@@ -991,11 +1276,28 @@ function updateRefundKPIs(){
 }
 
 function renderRefundTable(){
-  const filterRep = (document.getElementById('rf-filter-rep')||{}).value||'';
-  const search    = ((document.getElementById('rf-search')||{}).value||'').toLowerCase();
-  let rows = REFUNDS.filter(r=>{
-    if(filterRep && r.repName!==filterRep) return false;
-    if(search && !(r.student||'').toLowerCase().includes(search)) return false;
+  const filterMonth=(document.getElementById('rf-filter-month')||{}).value||'';
+  const filterRep  =(document.getElementById('rf-filter-rep')||{}).value||'';
+  const search     =((document.getElementById('rf-search')||{}).value||'').toLowerCase();
+  /* Build combined refunds from all history + current session */
+  const period=document.getElementById('period-lbl').textContent||'';
+  let allRefunds=[];
+  HIST.forEach(h=>(h.refunds||[]).forEach(r=>allRefunds.push({...r,_period:h.period})));
+  if(REFUNDS.length&&!HIST.some(h=>h.period===period)){
+    REFUNDS.forEach(r=>allRefunds.push({...r,_period:period}));
+  }
+  if(!allRefunds.length) allRefunds=REFUNDS.map(r=>({...r,_period:period}));
+  /* Populate month dropdown */
+  const mSel=document.getElementById('rf-filter-month');
+  if(mSel){
+    const months=[...new Set(allRefunds.map(r=>r._period).filter(Boolean))].sort();
+    const cur=mSel.value;
+    mSel.innerHTML='<option value="">All months</option>'+months.map(m=>`<option${m===cur?' selected':''}>${m}</option>`).join('');
+  }
+  let rows=allRefunds.filter(r=>{
+    if(filterMonth&&r._period!==filterMonth)return false;
+    if(filterRep&&r.repName!==filterRep)return false;
+    if(search&&!(r.student||'').toLowerCase().includes(search))return false;
     return true;
   });
   const tbody = document.getElementById('refund-tbody');
@@ -1005,7 +1307,8 @@ function renderRefundTable(){
     return;
   }
   tbody.innerHTML = rows.map((r,i)=>`<tr class="rmis">
-    <td style="color:#aaa">${i+1}</td>
+    <td style="color:var(--text3)">${i+1}</td>
+    <td style="font-size:11px;color:var(--text3);white-space:nowrap">${esc(r._period||'—')}</td>
     <td>${esc(r.date||'—')}</td>
     <td style="font-weight:500">${esc(r.student)}</td>
     <td style="font-size:11px;color:#888">${esc(r.email||'—')}</td>
@@ -1020,9 +1323,9 @@ function renderRefundTable(){
   const totAmt = rows.reduce((s,r)=>s+r.amount,0);
   const totDed = rows.reduce((s,r)=>s+r.deduction,0);
   document.getElementById('refund-tfoot').innerHTML=`
-    <td colspan="5" style="text-align:right;font-size:12px;">Total (${rows.length} refunds)</td>
-    <td class="mono">${fmt(totAmt)}</td><td></td>
-    <td class="mono" style="color:#ba7517">−${fmtD(totDed)}</td>
+    <td colspan="6" style="text-align:right;font-size:12px;color:var(--text3)">Total (${rows.length} refunds)</td>
+    <td class="mono" style="color:var(--red)">${fmt(totAmt)}</td><td></td>
+    <td class="mono" style="color:var(--amber)">−${fmtD(totDed)}</td>
     <td colspan="2"></td>`;
 }
 
@@ -1043,8 +1346,8 @@ function exportRefundCSV(){
 /* ══ HELPERS ══ */
 const cl=s=>(s||'').toString().replace(/[\t\r\n]+/g,' ').replace(/\s+/g,' ').trim();
 const amtN=v=>{const n=parseFloat((v||'').toString().replace(/[^0-9.]/g,''));return isNaN(n)?0:Math.round(n);};
-const fmt=n=>'&#8377;'+Math.round(n).toLocaleString('en-IN');
-const fmtD=(n,d=2)=>'&#8377;'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const fmtD=(n,d=2)=>'₹'+Number(n).toFixed(d).replace(/\B(?=(\d{2})+(?!\d))/g,',');
 const esc=s=>(s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const ini=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
 
@@ -1055,7 +1358,7 @@ function addRep(name='',target=0,orgRate=5){
   renderReps();
 }
 function removeRep(id){REPS=REPS.filter(r=>r.id!==id);renderReps();}
-function updRep(id,f,v){const r=REPS.find(r=>r.id===id);if(r){r[f]=v;renderReps();}}
+function updRep(id,f,v){const r=REPS.find(r=>r.id===id);if(r){r[f]=v;renderReps();if(ROWS.length){renderRepSum();renderDashboard();}}}
 
 function renderReps(){
   document.getElementById('rep-grid').innerHTML=REPS.map(rep=>`
@@ -1073,7 +1376,7 @@ function renderReps(){
           <option value="10" ${rep.orgRate==10?'selected':''}>10%</option>
           <option value="12" ${rep.orgRate==12?'selected':''}>12%</option>
         </select></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f0f0ec;font-size:10px;color:#aaa;font-family:monospace">
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);font-family:monospace">
         Formula: (Organic net &#8722; &#8377;${(rep.target||0).toLocaleString('en-IN')}) &#215; ${rep.orgRate||5}%
         &nbsp;|&nbsp; Meta1k: 5% &nbsp;|&nbsp; Meta89+Insta: 8%
       </div>
@@ -1446,9 +1749,18 @@ function mName(a,b){
   return false;
 }
 
-function doMatch(name,amt){
+function doMatch(name,amt,email){
   if(!SD.master.length)return{status:'No master',remark:'No master sheet uploaded',mAmt:null};
-  const cands=SD.master.filter(m=>mName(m.name,name));
+  /* Primary: match by Email ID (unique key) */
+  const normEmail=e=>(e||'').toLowerCase().trim();
+  let cands=[];
+  if(email && normEmail(email)){
+    cands=SD.master.filter(m=>normEmail(m.email)===normEmail(email));
+  }
+  /* Fallback: name match if no email match */
+  if(!cands.length){
+    cands=SD.master.filter(m=>mName(m.name,name));
+  }
   if(!cands.length)return{status:'Not found',remark:'Not found in master sheet',mAmt:null};
 
   /* Use allAmounts array — covers any payment column dynamically */
@@ -1458,16 +1770,29 @@ function doMatch(name,amt){
   /* 1. Exact match */
   for(const c of cands){
     if(vals(c).includes(amt))
-      return{status:'Verified',remark:'&#10003; Matched',mAmt:dispAmt(c)};
+      return{status:'Verified',remark:'&#10003; Matched',mAmt:dispAmt(c),roundOff:0,extraPay:0};
   }
-  /* 2. Overpayment within ₹2000 (e.g. 32000 vs 31999) */
+  /* 2. Round-off within ₹1 */
   for(const c of cands){
-    const h=vals(c).find(v=>amt>=v&&amt-v<=2000);
-    if(h)return{status:'Verified',
-      remark:'Minor overpayment &#8377;'+amt.toLocaleString('en-IN')+' vs &#8377;'+h.toLocaleString('en-IN')+' — treated as paid',
-      mAmt:dispAmt(c)};
+    const h=vals(c).find(v=>Math.abs(amt-v)<=1&&amt!==v);
+    if(h){
+      const diff=amt-h;
+      return{status:'Verified',
+        remark:'&#10003; Matched (&#8377;'+Math.abs(diff)+' round-off)',
+        mAmt:dispAmt(c),roundOff:diff,extraPay:0};
+    }
   }
-  /* 3. Partial payment — rep amount less than master amount */
+  /* 3. Extra payment — paid more than master amount (beyond round-off) */
+  for(const c of cands){
+    const masterAmt=dispAmt(c);
+    if(masterAmt>0&&amt>masterAmt&&amt-masterAmt>1){
+      const extra=amt-masterAmt;
+      return{status:'Verified',
+        remark:'&#10003; Matched + extra &#8377;'+extra.toLocaleString('en-IN')+' above master',
+        mAmt:masterAmt,roundOff:0,extraPay:extra};
+    }
+  }
+  /* 4. Partial payment — rep amount less than master amount */
   for(const c of cands){
     const masterTotal=dispAmt(c);
     if(masterTotal>0&&amt>0&&amt<masterTotal){
@@ -1476,14 +1801,14 @@ function doMatch(name,amt){
       return{status:'Partial',
         remark:'Partial payment &#8377;'+amt.toLocaleString('en-IN')+' of &#8377;'+masterTotal.toLocaleString('en-IN')+
                ' ('+pct+'% paid, &#8377;'+pending.toLocaleString('en-IN')+' pending)',
-        mAmt:masterTotal};
+        mAmt:masterTotal,roundOff:0,extraPay:0};
     }
   }
-  /* 4. Name found but no amount matches */
+  /* 5. Name found but no amount matches */
   const allMasterAmts=[...new Set(cands.flatMap(c=>vals(c)))];
   return{status:'Mismatch',
     remark:'Name found but &#8377;'+amt.toLocaleString('en-IN')+' not in master. Master has: &#8377;'+allMasterAmts.map(a=>a.toLocaleString('en-IN')).join(', '),
-    mAmt:allMasterAmts[0]||null};
+    mAmt:allMasterAmts[0]||null,roundOff:0,extraPay:0};
 }
 
 /* ══ AUDIT ENGINE ══ */
@@ -1496,7 +1821,7 @@ function runAudit(){
 
   ROWS=all.map((s,i)=>{
     const{cat,badge,label}=categorizeLead(s.lead);
-    const{gst,mgmt,net}=netRev(s.amount);
+    const{gst,mgmt,net}=netRev(s.amount, cat);
     /* Rep tagged during file upload */
     const repName=s._repName||'Unknown';
     const rep=REPS.find(r=>r.name===repName)||null;
@@ -1507,10 +1832,12 @@ function runAudit(){
     else if(cat==='meta89'){rate=8;}
     else if(cat==='meta1k'){rate=5;}
     else{rate=0;rateNote='Unknown lead source — rate not assigned';}
-    const incentive=parseFloat((net*rate/100).toFixed(2));
-    const{status,remark,mAmt}=doMatch(s.name,s.amount);
+    const{status,remark,mAmt,roundOff,extraPay}=doMatch(s.name,s.amount,s.email);
+    /* Deduct extra payment from net before incentive calculation */
+    const netAdj=net-extraPay;
+    const incentive=netAdj*rate/100;
     const fullRemark=rateNote?rateNote+(remark&&remark!=='No master sheet uploaded'?' | '+remark:remark):remark;
-    return{idx:i+1,...s,cat,badge,label,repName,rate,gst,mgmt,net,incentive,mAmt,status,remark:fullRemark,period};
+    return{idx:i+1,...s,cat,badge,label,repName,rate,gst,mgmt,net,netAdj,incentive,mAmt,roundOff,extraPay,status,remark:fullRemark,remarks:s.remarks||'',period,_editLog:[]};
   });
 
   /* ── DUPLICATE DETECTION: Email ID as unique key ── */
@@ -1541,7 +1868,7 @@ function runAudit(){
 
   const crossDups=ROWS.filter(r=>r._dupType==='cross-rep').length;
   const selfDups=ROWS.filter(r=>r._dupType==='self').length;
-  updKPIs();renderTable();renderRepSum();renderDupTab();renderDashboard();saveHist(period);goTab('dashboard');
+  updKPIs();renderTable();renderRepSum();renderDupTab();renderDashboard();saveHistWithBackend(period);goTab('dashboard');
   const msg='Audit complete — '+ROWS.length+' entries'+(crossDups?' | '+crossDups+' cross-rep duplicates found':'')+(selfDups?' | '+selfDups+' self-duplicates':'');
   document.getElementById('run-st').textContent=msg;
   setTimeout(()=>document.getElementById('run-st').textContent='',6000);
@@ -1563,13 +1890,31 @@ function updKPIs(){
 }
 
 function renderTable(){
+  const fM=(document.getElementById('f-month')||{}).value||'';
   const fR=document.getElementById('f-rep').value;
   const fS=document.getElementById('f-sheet').value;
   const fSt=document.getElementById('f-status').value;
   const fQ=(document.getElementById('f-search').value||'').toLowerCase();
-  let rows=ROWS.filter(r=>{
+  /* Build combined rows from all history + current session */
+  const period=document.getElementById('period-lbl').textContent||'';
+  let allRows=[];
+  HIST.forEach(h=>(h.rows||[]).forEach(r=>allRows.push({...r,_period:h.period})));
+  /* Add current session rows if not already saved */
+  if(ROWS.length&&!HIST.some(h=>h.period===period)){
+    ROWS.forEach(r=>allRows.push({...r,_period:period}));
+  }
+  if(!allRows.length) allRows=ROWS.map(r=>({...r,_period:period}));
+  /* Populate month dropdown */
+  const mSel=document.getElementById('f-month');
+  if(mSel){
+    const months=[...new Set(allRows.map(r=>r._period).filter(Boolean))].sort();
+    const cur=mSel.value;
+    mSel.innerHTML='<option value="">All months</option>'+months.map(m=>`<option${m===cur?' selected':''}>${m}</option>`).join('');
+  }
+  let rows=allRows.filter(r=>{
+    if(fM&&r._period!==fM)return false;
     if(fR&&r.repName!==fR)return false;
-    if(fS&&r._sheet!==fS)return false;
+    if(fS&&r.label!==fS)return false;
     if(fSt&&r.status!==fSt)return false;
     if(fQ&&!(r.name||'').toLowerCase().includes(fQ))return false;
     return true;
@@ -1584,19 +1929,23 @@ function renderTable(){
     <td style="font-weight:500" title="${esc(r.name||'')}">${esc(r.name||'—')}</td>
     <td style="font-size:11px;color:#888" title="${esc(r.email||'')}">${esc(r.email||'—')}</td>
     <td><span style="font-size:10px;background:#eef2fc;color:#1a3a5c;padding:1px 6px;border-radius:3px;font-weight:600">${esc(r.repName)}</span></td>
-    <td style="font-size:11px;color:#666">${esc(r._sheet||'')}</td>
     <td><span class="badge ${r.badge}">${esc(r.label)}</span></td>
     <td class="mono">${r.amount?fmt(r.amount):'—'}</td>
     <td class="mono" style="color:#aaa">${r.gst?fmt(r.gst):'—'}</td>
+    <td class="mono" style="color:#ba7517">${r.mgmt?fmt(r.mgmt):'—'}</td>
     <td class="mono">${r.net?fmt(r.net):'—'}</td>
+    <td class="mono" style="color:#e24b4a">${r.extraPay>0?fmt(r.extraPay):'—'}</td>
+    <td class="mono" style="color:#ba7517">${r.roundOff!==0?fmt(Math.abs(r.roundOff)):'—'}</td>
     <td style="font-weight:700;color:${r.rate===8?'#ba7517':r.rate===10?'#1d9e75':r.rate===0?'#e24b4a':'#555'}">${r.rate}%${r.cat==='unknown'?'<span title="'+esc(r.label)+'" style="font-size:9px;color:#e24b4a"> !</span>':''}</td>
     <td class="mono" style="font-weight:700;color:#1a3a5c">${fmtD(r.incentive)}</td>
     <td class="mono" style="color:#888">${r.mAmt!=null?fmt(r.mAmt):'—'}</td>
     <td><span class="badge ${bc(r)}">${r.status}</span></td>
     <td style="font-size:11px;color:${r.status==='Mismatch'||r.status==='Not found'?'#e24b4a':r.status==='Partial'?'#5b21b6':'#555'};white-space:normal;max-width:220px;overflow:hidden;text-overflow:ellipsis;"
-      title="${esc(r.remark||'')+' '+esc(r.remarks||'')}">${isRefundedRow(r)?'<span style="background:#fcebeb;color:#b01e1e;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:4px">REFUNDED</span>':''}${r.remark||''}${r.remarks?' | '+esc(r.remarks):''}${r._dupType==='cross-rep'?'<span style="margin-left:4px;background:#fcebeb;color:#b01e1e;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700;white-space:nowrap">DUP: '+esc(r._dupWith)+'</span>':r._dupType==='self'?'<span style="margin-left:6px;background:#faeeda;color:#633806;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700">&#9651; Self-dup</span>':''}</td>
+      title="${esc(r.remark||'')+' '+esc(r.remarks||'')}">${isRefundedRow(r)?'<span style="background:#fcebeb;color:#b01e1e;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:4px">REFUNDED</span>':''}${r.remark||''}${r.remarks?' | '+esc(r.remarks):''}${r._editLog&&r._editLog.length?'<span style="margin-left:4px;background:#e8f4fd;color:#0c447c;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700">EDITED</span>':''}${r._dupType==='cross-rep'?'<span style="margin-left:4px;background:#fcebeb;color:#b01e1e;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700;white-space:nowrap">DUP: '+esc(r._dupWith)+'</span>':r._dupType==='self'?'<span style="margin-left:6px;background:#faeeda;color:#633806;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700">&#9651; Self-dup</span>':''}</td>
+    <td><button onclick="openEditRow(${r.idx-1})" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit">&#9998;</button></td>
   </tr>`).join('');
   const tA=rows.reduce((s,r)=>s+(r.amount||0),0);
+  const tM=rows.reduce((s,r)=>s+(r.mgmt||0),0);
   const tN=rows.reduce((s,r)=>s+(r.net||0),0);
   const tI=rows.reduce((s,r)=>s+(r.incentive||0),0);
 
@@ -1611,13 +1960,20 @@ function renderTable(){
 
 
   /* Render breakdown BELOW the table as a separate summary bar */
+  const tE=rows.reduce((s,r)=>s+(r.extraPay||0),0);
+  const tRO=rows.reduce((s,r)=>s+(Math.abs(r.roundOff||0)),0);
   document.getElementById('tfoot').innerHTML=
     `<tr style="border-top:2px solid #1a3a5c;">
       <td colspan="6" style="text-align:right;font-size:12px;">Grand total (${rows.length} rows)</td>
-      <td class="mono">${fmt(tA)}</td><td></td>
-      <td class="mono">${fmt(tN)}</td><td></td>
+      <td class="mono">${fmt(tA)}</td>
+      <td class="mono" style="color:#aaa"></td>
+      <td class="mono" style="color:#ba7517">${tM>0?fmt(tM):'—'}</td>
+      <td class="mono">${fmt(tN)}</td>
+      <td class="mono" style="color:#e24b4a">${tE>0?fmt(tE):'—'}</td>
+      <td class="mono" style="color:#ba7517">${tRO>0?fmt(tRO):'—'}</td>
+      <td></td>
       <td class="mono" style="color:#1a3a5c;">${fmtD(tI)}</td>
-      <td colspan="3"></td>
+      <td colspan="4"></td>
     </tr>`;
 
   /* Category breakdown as stacked rows below table */
@@ -1756,14 +2112,16 @@ function repCalc(rep){
 
   const orgRows  = rows.filter(r=>r.cat==='organic');
   const m1kRows  = rows.filter(r=>r.cat==='meta1k');
-  const m89Rows  = rows.filter(r=>r.cat==='meta89');
+  const m89Rows  = rows.filter(r=>r.cat==='meta89'&&r.label!=='Tamil Instagram');
+  const instaRows= rows.filter(r=>r.cat==='meta89'&&r.label==='Tamil Instagram');
   const unkRows  = rows.filter(r=>r.cat==='unknown');
 
   /* Revenue from ACTIVE rows only — refunded students fully excluded */
   const orgNet    = orgRows.reduce((s,r)=>s+r.net,0);
   const m1kNet    = m1kRows.reduce((s,r)=>s+r.net,0);
   const m89Net    = m89Rows.reduce((s,r)=>s+r.net,0);
-  const totalNet  = orgNet+m1kNet+m89Net;
+  const instaNet  = instaRows.reduce((s,r)=>s+r.net,0);
+  const totalNet  = orgNet+m1kNet+m89Net+instaNet;
   const totalGross= rows.reduce((s,r)=>s+(r.amount||0),0);
 
   /* Refunded summary (for display) */
@@ -1776,9 +2134,36 @@ function repCalc(rep){
   let orgInc=0, teamInfo=null;
   if(team&&ROWS.length){
     const ts=teamOrgStatsActive(team);
+    /* Team combined check first — if team doesn't meet combined target, nobody gets bonus */
+    const teamTargetMet = ts.teamOrgNet >= ts.teamTarget;
+
+    let effectiveNet = orgNet;
+    let coveredFor = 0;    /* amount this rep gave to cover teammate's shortfall */
+    let receivedFrom = 0; /* amount this rep received from teammate */
+
+    if(teamTargetMet){
+      /* Calculate each member's shortfall/surplus */
+      const members=ts.members;
+      members.forEach(m=>{
+        const mNet=ts.memberNets[m.name]||0;
+        const mTarget=m.target||0;
+        if(m.name!==rep.name){
+          const mShortfall=Math.max(0, mTarget-mNet);
+          if(mShortfall>0){
+            /* This rep covers teammate's shortfall */
+            coveredFor+=mShortfall;
+          }
+        }
+      });
+      effectiveNet=orgNet-coveredFor;
+    }
+
+    const indivTargetMet=teamTargetMet&&effectiveNet>=(rep.target||0);
+    const indivSurplus=Math.max(0, effectiveNet-(rep.target||0));
     const repShare=ts.teamOrgNet>0?(orgNet/ts.teamOrgNet):0;
-    if(ts.targetMet){
-      orgInc=parseFloat((ts.teamSurplus*repShare*(rep.orgRate||5)/100).toFixed(2));
+
+    if(indivTargetMet){
+      orgInc=indivSurplus*(rep.orgRate||5)/100;
     } else {
       orgInc=0;
     }
@@ -1787,25 +2172,30 @@ function repCalc(rep){
       teamOrgNet:ts.teamOrgNet,
       teamTarget:ts.teamTarget,
       teamSurplus:ts.teamSurplus,
-      targetMet:ts.targetMet,
+      teamTargetMet:teamTargetMet,
+      targetMet:indivTargetMet,
+      indivSurplus:indivSurplus,
+      effectiveNet:effectiveNet,
+      coveredFor:coveredFor,
       repShare:repShare,
       memberNets:ts.memberNets
     };
   } else {
     const above=Math.max(0,orgNet-(rep.target||0));
-    orgInc=parseFloat((above*(rep.orgRate||5)/100).toFixed(2));
+    orgInc=above*(rep.orgRate||5)/100;
     teamInfo=null;
   }
 
   /* Meta incentives on active rows only — no separate deduction needed */
-  const m1kInc = parseFloat((m1kNet*5/100).toFixed(2));
-  const m89Inc = parseFloat((m89Net*8/100).toFixed(2));
-  const final  = orgInc+m1kInc+m89Inc;
+  const m1kInc   = m1kNet*5/100;
+  const m89Inc   = m89Net*8/100;
+  const instaInc = instaNet*8/100;
+  const final    = orgInc+m1kInc+m89Inc+instaInc;
 
-  return{rows,allRows,refundedRows,orgRows,m1kRows,m89Rows,unkRows,
-    orgNet,m1kNet,m89Net,totalNet,totalGross,
+  return{rows,allRows,refundedRows,orgRows,m1kRows,m89Rows,instaRows,unkRows,
+    orgNet,m1kNet,m89Net,instaNet,totalNet,totalGross,
     refundedGross,refundedNet,refundedCount,
-    orgInc,m1kInc,m89Inc,final,teamInfo};
+    orgInc,m1kInc,m89Inc,instaInc,final,teamInfo};
 }
 
 function renderRepSum(){
@@ -1892,32 +2282,41 @@ function renderRepSum(){
         ${d.teamInfo?`
         <div style="background:#f0f4fc;border-radius:6px;padding:8px 10px;margin:6px 0;font-size:11px;">
           <div style="font-weight:700;color:#1a3a5c;margin-bottom:5px;">&#128101; ${d.teamInfo.teamName} — pooled calculation</div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">Team organic net</span><span style="font-family:monospace;font-weight:600;">${fmt(d.teamInfo.teamOrgNet)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">Team combined target</span><span style="font-family:monospace;">&#8377;${d.teamInfo.teamTarget.toLocaleString('en-IN')}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px dashed #c8d4ea;margin-top:3px;"><span style="color:${d.teamInfo.teamSurplus>0?'#1d9e75':'#e24b4a'};font-weight:600;">Team surplus</span><span style="font-family:monospace;font-weight:700;color:${d.teamInfo.teamSurplus>0?'#1d9e75':'#e24b4a'};">${fmt(d.teamInfo.teamSurplus)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">${esc(rep.name)}'s share</span><span style="font-family:monospace;">${(d.teamInfo.repShare*100).toFixed(1)}% of team</span></div>
-          ${d.teamInfo.targetMet
-            ?`<div style="font-family:monospace;color:#888;font-size:10px;margin-top:4px;padding-top:4px;border-top:1px dashed #c8d4ea;">
-                ${fmt(d.teamInfo.teamSurplus)} &times; ${(d.teamInfo.repShare*100).toFixed(1)}% &times; ${rep.orgRate||5}% = ${fmtD(d.orgInc)}
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">${esc(rep.name)}'s organic net</span><span style="font-family:monospace;font-weight:600;">${fmt(d.orgNet)}</span></div>
+          ${d.teamInfo.coveredFor>0?`<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#e24b4a;">Covered for teammate's shortfall</span><span style="font-family:monospace;color:#e24b4a;">&#8722;${fmt(d.teamInfo.coveredFor)}</span></div>`:''}
+          <div style="display:flex;justify-content:space-between;padding:2px 0;${d.teamInfo.coveredFor>0?'border-top:1px dashed #c8d4ea;margin-top:2px;':''}"><span style="color:#666;font-weight:600;">Effective net</span><span style="font-family:monospace;font-weight:700;">${fmt(d.teamInfo.effectiveNet)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">${esc(rep.name)}'s target</span><span style="font-family:monospace;">&#8377;${(rep.target||0).toLocaleString('en-IN')}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px dashed #c8d4ea;margin-top:3px;"><span style="color:${d.teamInfo.indivSurplus>0?'#1d9e75':'#e24b4a'};font-weight:600;">Surplus</span><span style="font-family:monospace;font-weight:700;color:${d.teamInfo.indivSurplus>0?'#1d9e75':'#e24b4a'};">${fmt(d.teamInfo.indivSurplus)}</span></div>
+          ${!d.teamInfo.teamTargetMet
+            ?`<div style="font-size:11px;color:#e24b4a;font-weight:600;margin-top:4px;padding:4px 6px;background:#fff0f0;border-radius:4px;">
+                &#9888; Team combined target not met — no organic bonus for anyone
               </div>`
-            :`<div style="font-size:11px;color:#e24b4a;font-weight:600;margin-top:4px;padding:4px 6px;background:#fff0f0;border-radius:4px;">
-                &#9888; Team organic target not met (${fmt(d.teamInfo.teamOrgNet)} of &#8377;${d.teamInfo.teamTarget.toLocaleString('en-IN')}) — no organic bonus eligible
-              </div>`
+            :d.teamInfo.targetMet
+              ?`<div style="font-family:monospace;color:#888;font-size:10px;margin-top:4px;padding-top:4px;border-top:1px dashed #c8d4ea;">
+                  ${fmt(d.teamInfo.indivSurplus)} &times; ${rep.orgRate||5}% = ${fmtD(d.orgInc)}
+                </div>`
+              :`<div style="font-size:11px;color:#e24b4a;font-weight:600;margin-top:4px;padding:4px 6px;background:#fff0f0;border-radius:4px;">
+                  &#9888; Effective net (${fmt(d.teamInfo.effectiveNet)}) &lt; target — no organic bonus
+                </div>`
           }
         </div>`:''}
         <div class="rs-row"><span class="l" style="font-weight:600">Organic incentive (${rep.orgRate||5}%)</span><span class="v" style="color:#1a3a5c;font-size:13px">${fmtD(d.orgInc)}</span></div>
         <div style="height:1px;background:#f0f0ec;margin:7px 0"></div>
         <div class="rs-row"><span class="l">Meta 1000 net</span><span class="v">${fmt(d.m1kNet)}</span></div>
-        <div class="rs-row"><span class="l">Meta 1000 incentive (5%)</span><span class="v">${fmtD(d.m1kInc)}</span></div>
-        <div class="rs-row"><span class="l">Meta 89rs + Insta net</span><span class="v">${fmt(d.m89Net)}</span></div>
-        <div class="rs-row"><span class="l">Meta 89+Insta incentive (8%)</span><span class="v">${fmtD(d.m89Inc)}</span></div>
+        <div class="rs-row"><span class="l">Meta 1000 incentive (5%)</span><span class="v green">${fmtD(d.m1kInc)}</span></div>
+        <div style="height:1px;background:var(--border);margin:7px 0"></div>
+        <div class="rs-row"><span class="l">Meta 89rs net</span><span class="v">${fmt(d.m89Net)}</span></div>
+        <div class="rs-row"><span class="l">Meta 89rs incentive (8%)</span><span class="v green">${fmtD(d.m89Inc)}</span></div>
+        <div style="height:1px;background:var(--border);margin:7px 0"></div>
+        <div class="rs-row"><span class="l">Tamil Instagram net</span><span class="v">${fmt(d.instaNet)}</span></div>
+        <div class="rs-row"><span class="l">Tamil Instagram incentive (8%)</span><span class="v green">${fmtD(d.instaInc)}</span></div>
         <div style="height:1px;background:#f0f0ec;margin:8px 0"></div>
         <div class="rs-row" style="background:#f0faf6;margin:0 -16px;padding:8px 16px">
           <span class="l" style="font-weight:700;font-size:13px">Final payout</span>
           <span class="v green" style="font-size:16px">${fmtD(d.final)}</span>
         </div>
         ${d.refundedCount>0?`<div style="font-size:10px;color:#e24b4a;margin-top:4px;padding:5px 8px;background:#fff8f8;border-radius:5px;line-height:1.6">&#9888; Excluded from incentive: ${d.refundedRows.map(r=>"<b>"+esc(r.name)+"</b> (&#8722;"+fmt(r.amount)+")").join(" &middot; ")}</div>`:""}
-        <div style="font-size:10px;color:#aaa;margin-top:6px;font-family:monospace">${fmtD(d.orgInc)} + ${fmtD(d.m1kInc)} + ${fmtD(d.m89Inc)}${d.refundedCount>0?" (refunded rows excluded from base)":""}</div>
+        <div style="font-size:10px;color:#aaa;margin-top:6px;font-family:monospace">${fmtD(d.orgInc)} + ${fmtD(d.m1kInc)} + ${fmtD(d.m89Inc)} + ${fmtD(d.instaInc)}${d.refundedCount>0?" (refunded rows excluded from base)":""}</div>
         ${d.unkRows.length?`<div style="font-size:11px;color:#e24b4a;margin-top:6px;padding:5px 8px;background:#fff8f8;border-radius:5px;">&#9888; ${d.unkRows.length} row(s) have unrecognised lead source — excluded from incentive. Check: ${[...new Set(d.unkRows.map(r=>r.label))].slice(0,3).join(', ')}</div>`:''}
       </div>
       <div style="padding:14px 16px;border-top:1px solid #f0f0ec">
@@ -1936,7 +2335,7 @@ function renderRepSum(){
       <thead><tr>
         <th>Rep</th><th>Total</th><th style="color:#e24b4a">Refunded</th><th>Active enroll.</th><th>Active gross</th><th>Active net</th>
         <th>Team</th><th>Org net</th><th>Team target</th><th>Team surplus</th><th>Rep share</th>
-        <th>Org incentive</th><th>Meta 1k inc.</th><th>Meta 89+Insta</th><th>Final payout</th>
+        <th>Org incentive</th><th>Meta 1k inc.</th><th>Meta 89rs inc.</th><th>Tamil Insta inc.</th><th>Final payout</th>
       </tr></thead>
       <tbody>${totals.map(({rep,d})=>`<tr class="rok">
         <td style="font-weight:600">${esc(rep.name)}</td>
@@ -1952,6 +2351,7 @@ function renderRepSum(){
         <td class="mono">${fmtD(d.orgInc)}</td>
         <td class="mono">${fmtD(d.m1kInc)}</td>
         <td class="mono">${fmtD(d.m89Inc)}</td>
+        <td class="mono">${fmtD(d.instaInc)}</td>
         <td class="mono" style="font-weight:700;color:#1a3a5c">${fmtD(d.final)}</td>
       </tr>`).join('')}</tbody>
       <tfoot><tr>
@@ -2049,7 +2449,13 @@ function renderHistList(){
 }
 
 function loadHist(i){
-  ROWS    = HIST[i].rows;
+  /* Recalculate gst/mgmt/net for every row using latest formula */
+  ROWS = (HIST[i].rows||[]).map(r=>{
+    const {gst,mgmt,net} = netRev(r.amount||0, r.cat||'unknown');
+    const rate = r.rate || 0;
+    const incentive = parseFloat((net * rate/100).toFixed(2));
+    return {...r, gst, mgmt, net, incentive};
+  });
   REPS    = HIST[i].repCfg;
   REFUNDS = HIST[i].refunds ? JSON.parse(JSON.stringify(HIST[i].refunds)) : [];
   REFUND_ID = REFUNDS.length ? Math.max(...REFUNDS.map(r=>r.id)) : 0;
@@ -2317,7 +2723,7 @@ function renderQuickBtns(){
 }
 
 function goTab(t){
-  ['setup','audit','repsum','dups','history','refunds','dashboard'].forEach(n=>{
+  ['dashboard','setup','audit','repsum','refunds','dups','history'].forEach(n=>{
     const btn=document.getElementById('tabBtn-'+n);
     const panel=document.getElementById('tab-'+n);
     if(btn)btn.classList.toggle('active',n===t);
@@ -2378,12 +2784,42 @@ function renderDashboard(){
   Object.values(DB_CHARTS).forEach(c=>{try{c.destroy();}catch(e){}});
   DB_CHARTS={};
 
-  const totalGross   = ROWS.reduce((s,r)=>s+(r.amount||0),0);
-  const totalNet     = ROWS.reduce((s,r)=>s+(r.net||0),0);
-  const totalInc     = REPS.reduce((s,rep)=>{const d=repCalc(rep);return s+d.final;},0);
-  const totalRefAmt  = REFUNDS.reduce((s,r)=>s+r.amount,0);
-  const totalRefDed  = REFUNDS.reduce((s,r)=>s+r.deduction,0);
-  const period       = document.getElementById('sel-month').value;
+  /* Build all-months data from HIST + current session */
+  const curPeriod = document.getElementById('sel-month').value;
+  let allRows=[], allRefunds=[];
+  HIST.forEach(h=>{
+    (h.rows||[]).forEach(r=>allRows.push({...r,_period:h.period}));
+    (h.refunds||[]).forEach(r=>allRefunds.push({...r,_period:h.period}));
+  });
+  if(!HIST.some(h=>h.period===curPeriod)){
+    ROWS.forEach(r=>allRows.push({...r,_period:curPeriod}));
+    REFUNDS.forEach(r=>allRefunds.push({...r,_period:curPeriod}));
+  }
+  if(!allRows.length){allRows=ROWS.map(r=>({...r,_period:curPeriod}));allRefunds=REFUNDS.map(r=>({...r,_period:curPeriod}));}
+
+  /* Populate month dropdown */
+  const mSel=document.getElementById('db-month-filter');
+  if(mSel){
+    const months=[...new Set(allRows.map(r=>r._period).filter(Boolean))].sort();
+    const cur=mSel.value;
+    mSel.innerHTML='<option value="">All months combined</option>'+months.map(m=>`<option${m===cur?' selected':''}>${m}</option>`).join('');
+  }
+
+  /* Filter by selected month */
+  const selMonth=(document.getElementById('db-month-filter')||{}).value||'';
+  const rows     = selMonth ? allRows.filter(r=>r._period===selMonth) : allRows;
+  const refunds  = selMonth ? allRefunds.filter(r=>r._period===selMonth) : allRefunds;
+  const period   = selMonth || 'All months';
+
+  const totalGross   = rows.reduce((s,r)=>s+(r.amount||0),0);
+  const totalNet     = rows.reduce((s,r)=>s+(r.net||0),0);
+  const totalRefAmt  = refunds.reduce((s,r)=>s+r.amount,0);
+  const totalRefDed  = refunds.reduce((s,r)=>s+r.deduction,0);
+
+  /* Incentive: use repCalc only when showing current session, else sum from rows */
+  const totalInc = selMonth
+    ? rows.reduce((s,r)=>s+(r.incentive||0),0)
+    : REPS.reduce((s,rep)=>{const d=repCalc(rep);return s+d.final;},0);
 
   /* KPI cards */
   document.getElementById('db-kpis').innerHTML = [
@@ -2399,7 +2835,7 @@ function renderDashboard(){
 
   /* Chart 1: Revenue by lead source */
   const srcMap={};
-  ROWS.forEach(r=>{const k=r.label||'Unknown';srcMap[k]=(srcMap[k]||0)+(r.net||0);});
+  rows.forEach(r=>{const k=r.label||'Unknown';srcMap[k]=(srcMap[k]||0)+(r.net||0);});
   const srcLabels=Object.keys(srcMap);
   const srcData=srcLabels.map(k=>Math.round(srcMap[k]));
   const srcColors=['#1a3a5c','#1d9e75','#ba7517','#e24b4a','#7c3aed','#0891b2'];
@@ -2433,13 +2869,13 @@ function renderDashboard(){
   const refCard=document.getElementById('db-refund-card');
   const refSummary=document.getElementById('db-refund-summary');
   const refTableCard=document.getElementById('db-refund-table-card');
-  if(REFUNDS.length>0){
+  if(refunds.length>0){
     refCard.style.display='block';
     refTableCard.style.display='block';
 
     /* Per-rep impact */
     const byRep={};
-    REFUNDS.forEach(r=>{
+    refunds.forEach(r=>{
       if(!byRep[r.repName])byRep[r.repName]={count:0,amt:0,ded:0};
       byRep[r.repName].count++;
       byRep[r.repName].amt+=r.amount;
@@ -2456,7 +2892,7 @@ function renderDashboard(){
       </div>`;
 
     /* Refund table */
-    document.getElementById('db-refund-tbody').innerHTML = REFUNDS.map((r,i)=>`<tr class="rmis">
+    document.getElementById('db-refund-tbody').innerHTML = refunds.map((r,i)=>`<tr class="rmis">
       <td style="color:#aaa">${i+1}</td>
       <td>${esc(r.date||'—')}</td>
       <td style="font-weight:500">${esc(r.student)}</td>
@@ -2472,33 +2908,38 @@ function renderDashboard(){
     refTableCard.style.display='none';
   }
 
-  /* Payout table */
+  /* Payout table — uses filtered rows/refunds */
   const tbody=document.getElementById('db-payout-tbody');
   const tfoot=document.getElementById('db-payout-tfoot');
   let grandGross=0,grandInc=0,grandDed=0,grandNet=0,grandEnroll=0;
   tbody.innerHTML=REPS.map(rep=>{
-    const d=repCalc(rep);
-    const ded=refundDeductionForRep(rep.name);
-    const grossI=d.orgInc+d.m1kInc+d.m89Inc;
-    const achieved=d.orgNet>=(rep.target||0);
-    grandGross+=d.totalGross;grandInc+=grossI;grandDed+=ded;grandNet+=d.final;grandEnroll+=d.rows.length;
+    const rRows=rows.filter(r=>r.repName===rep.name);
+    const rRefs=refunds.filter(r=>r.repName===rep.name);
+    const rGross=rRows.reduce((s,r)=>s+(r.amount||0),0);
+    const rNet=rRows.reduce((s,r)=>s+(r.net||0),0);
+    const rInc=selMonth
+      ? rRows.reduce((s,r)=>s+(r.incentive||0),0)
+      : (()=>{const d=repCalc(rep);return d.final;})();
+    const rDed=rRefs.reduce((s,r)=>s+r.amount,0);
+    const achieved=rNet>=(rep.target||0);
+    grandGross+=rGross;grandInc+=rInc;grandDed+=rDed;grandNet+=rInc;grandEnroll+=rRows.length;
     return`<tr class="rok">
-      <td style="font-weight:600">${esc(rep.name)}</td>
-      <td class="mono">${d.rows.length}</td>
-      <td class="mono">${fmt(d.totalGross)}</td>
-      <td class="mono">${fmtD(grossI)}</td>
-      <td class="mono" style="color:${ded>0?'#e24b4a':'#aaa'}">${ded>0?'−'+fmtD(ded):'—'}</td>
-      <td class="mono" style="font-weight:700;color:#1d9e75;font-size:13px">${fmtD(d.final)}</td>
+      <td style="font-weight:600;color:var(--text)">${esc(rep.name)}</td>
+      <td class="mono">${rRows.length}</td>
+      <td class="mono">${fmt(rGross)}</td>
+      <td class="mono">${fmtD(rInc)}</td>
+      <td class="mono" style="color:${rDed>0?'var(--red)':'var(--text3)'}">${rDed>0?'−'+fmt(rDed):'—'}</td>
+      <td class="mono" style="font-weight:700;color:var(--green);font-size:13px">${fmtD(rInc)}</td>
       <td><span class="badge ${achieved?'b-ok':'b-mis'}">${achieved?'Target met':'Below target'}</span></td>
     </tr>`;
   }).join('');
   tfoot.innerHTML=`
-    <td style="font-weight:700">Grand total</td>
+    <td style="font-weight:700;color:var(--text)">Grand total</td>
     <td class="mono">${grandEnroll}</td>
     <td class="mono">${fmt(grandGross)}</td>
     <td class="mono">${fmtD(grandInc)}</td>
-    <td class="mono" style="color:${grandDed>0?'#e24b4a':'#aaa'}">${grandDed>0?'−'+fmtD(grandDed):'—'}</td>
-    <td class="mono" style="font-weight:700;color:#1d9e75;font-size:14px">${fmtD(grandNet)}</td>
+    <td class="mono" style="color:${grandDed>0?'var(--red)':'var(--text3)'}">${grandDed>0?'−'+fmt(grandDed):'—'}</td>
+    <td class="mono" style="font-weight:700;color:var(--green);font-size:14px">${fmtD(grandNet)}</td>
     <td></td>`;
 }
 
@@ -2616,188 +3057,425 @@ document.getElementById('deploy-modal').addEventListener('click',function(e){
 
 
 /* ══ USER AUTH SYSTEM ══ */
-const USERS_KEY   = 'bonus_audit_users_v1';
-const SESSION_KEY = 'bonus_audit_session';
-
-/* Default admin user */
-const DEFAULT_USERS = [
-  { name:'Admin', email:'admin@bonusaudit.com', password:'Bonus@2026', role:'admin' }
-];
-
-function getUsers(){
-  try{
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? JSON.parse(raw) : DEFAULT_USERS;
-  }catch(e){ return DEFAULT_USERS; }
+const USERS_KEY='bonus_audit_users_v1', SESSION_KEY='bonus_audit_session';
+const DEFAULT_USERS=[{name:'Admin',email:'admin@bonusaudit.com',password:'Bonus@2026',role:'admin'}];
+function getUsers(){try{const r=localStorage.getItem(USERS_KEY);return r?JSON.parse(r):DEFAULT_USERS;}catch(e){return DEFAULT_USERS;}}
+function saveUsers(u){localStorage.setItem(USERS_KEY,JSON.stringify(u));}
+function getCurrentSession(){try{return JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch(e){return null;}}
+function _updateTopbar(role,name){
+  const tu=document.getElementById('topbar-user');
+  if(tu)tu.textContent='👤 '+name+' ('+role+')';
+  ['users-btn-topbar','deploy-btn-topbar'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=role==='admin'?'block':'none';
+  });
 }
-
-function saveUsers(users){
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function getCurrentSession(){
-  try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
-  catch(e){ return null; }
-}
-
-/* ── LOGIN ── */
 function checkLogin(){
-  const email = (document.getElementById('login-email').value||'').toLowerCase().trim();
-  const pw    = document.getElementById('login-pw').value;
-  const err   = document.getElementById('login-error');
-  const users = getUsers();
-  const user  = users.find(u=>u.email.toLowerCase()===email && u.password===pw);
+  const email=(document.getElementById('login-email').value||'').toLowerCase().trim();
+  const pw=document.getElementById('login-pw').value;
+  const err=document.getElementById('login-error');
+  const user=getUsers().find(u=>u.email.toLowerCase()===email&&u.password===pw);
   if(user){
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({email:user.email, name:user.name, role:user.role}));
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify({email:user.email,name:user.name,role:user.role}));
     document.getElementById('pw-gate').style.display='none';
     document.getElementById('login-email').value='';
     document.getElementById('login-pw').value='';
     err.style.display='none';
-    /* Show user in topbar */
-    const tu=document.getElementById('topbar-user');
-    if(tu) tu.textContent='👤 '+user.name+' ('+user.role+')';
-    /* Only admin sees Users button */
-    const ubtn=document.querySelector('button[onclick*="umTab"]');
-    if(ubtn) ubtn.style.display = user.role==='admin'?'':'none';
-  } else {
+    _updateTopbar(user.role,user.name);
+  }else{
     err.style.display='block';
     document.getElementById('login-pw').value='';
     document.getElementById('login-pw').focus();
     const em=document.getElementById('login-email');
     em.style.borderColor='#ef4444';
-    document.getElementById('login-pw').style.borderColor='#ef4444';
-    setTimeout(()=>{em.style.borderColor='#334155';document.getElementById('login-pw').style.borderColor='#334155';},1500);
+    setTimeout(()=>{em.style.borderColor='';document.getElementById('login-pw').style.borderColor='';},1500);
   }
 }
-
 function logoutUser(){
-  if(!confirm('Sign out?')) return;
+  if(!confirm('Sign out?'))return;
   sessionStorage.removeItem(SESSION_KEY);
   document.getElementById('pw-gate').style.display='flex';
   document.getElementById('topbar-user').textContent='';
+  ['users-btn-topbar','deploy-btn-topbar'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   setTimeout(()=>document.getElementById('login-email').focus(),100);
 }
-
-/* ── USER MANAGEMENT ── */
 function umTab(tab){
   ['add','list','chpw'].forEach(t=>{
-    document.getElementById('um-panel-'+t).style.display = t===tab?'block':'none';
+    document.getElementById('um-panel-'+t).style.display=t===tab?'block':'none';
     const btn=document.getElementById('um-tab-'+t);
-    if(btn){btn.style.background=t===tab?'#1a3a5c':'transparent';btn.style.color=t===tab?'#fff':'#888';}
+    if(btn){btn.style.background=t===tab?'var(--accent)':'transparent';btn.style.color=t===tab?'#fff':'var(--text3)';}
   });
-  if(tab==='list') renderUserList();
+  if(tab==='list')renderUserList();
 }
-
 function renderUserList(){
-  const users=getUsers();
-  const session=getCurrentSession();
-  const el=document.getElementById('um-user-list');
+  const users=getUsers(),session=getCurrentSession(),el=document.getElementById('um-user-list');
   if(!users.length){el.innerHTML='<div class="empty">No users</div>';return;}
   el.innerHTML=users.map((u,i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid #e0ddd4;border-radius:8px;margin-bottom:8px;font-size:12px">
-      <div>
-        <div style="font-weight:700;color:#1a3a5c">${esc(u.name)}</div>
-        <div style="color:#888;margin-top:2px">${esc(u.email)} &middot; <span style="background:${u.role==='admin'?'#eef2fc':'#f0faf6'};color:${u.role==='admin'?'#1a3a5c':'#085041'};padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600">${u.role}</span></div>
-      </div>
-      ${session&&session.email!==u.email?`<button onclick="removeUser(${i})" style="background:#fff0f0;color:#e24b4a;border:1px solid #f5c6c6;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>`:'<span style="font-size:10px;color:#aaa">(you)</span>'}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:12px">
+      <div><div style="font-weight:700;color:var(--text)">${esc(u.name)}</div>
+      <div style="color:var(--text3);margin-top:2px">${esc(u.email)} &middot; <span style="background:var(--accent-glow);color:var(--accent2);padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600">${u.role}</span></div></div>
+      ${session&&session.email!==u.email?`<button onclick="removeUser(${i})" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>`:'<span style="font-size:10px;color:var(--text3)">(you)</span>'}
     </div>`).join('');
 }
-
 function addUser(){
+  const name=document.getElementById('um-name').value.trim();
+  const email=document.getElementById('um-email').value.trim().toLowerCase();
+  const pw=document.getElementById('um-pw').value;
+  const role=document.getElementById('um-role').value;
+  const st=document.getElementById('um-add-status');
+  function ss(msg,ok){st.style.display='block';st.style.background=ok?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';st.style.border='1px solid '+(ok?'var(--green)':'var(--red)');st.style.color=ok?'#34d399':'#f87171';st.textContent=msg;}
+  if(!name||!email||!pw){ss('✗ All fields required.',false);return;}
+  if(pw.length<6){ss('✗ Password min 6 chars.',false);return;}
+  const users=getUsers();
+  if(users.find(u=>u.email===email)){ss('✗ Email already registered.',false);return;}
+  users.push({name,email,password:pw,role});saveUsers(users);
+  ss('✓ '+name+' added!',true);
+  document.getElementById('um-name').value='';document.getElementById('um-email').value='';document.getElementById('um-pw').value='';
+  setTimeout(()=>st.style.display='none',2500);
+}
+function removeUser(i){const users=getUsers();if(!confirm('Remove '+users[i].name+'?'))return;users.splice(i,1);saveUsers(users);renderUserList();}
+function changePassword(){
+  const session=getCurrentSession();if(!session)return;
+  const current=document.getElementById('chpw-current').value;
+  const newPw=document.getElementById('chpw-new').value.trim();
+  const conf=document.getElementById('chpw-confirm').value.trim();
+  const st=document.getElementById('chpw-status');
+  function ss(msg,ok){st.style.display='block';st.style.background=ok?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';st.style.border='1px solid '+(ok?'var(--green)':'var(--red)');st.style.color=ok?'#34d399':'#f87171';st.textContent=msg;}
+  const users=getUsers(),idx=users.findIndex(u=>u.email===session.email);
+  if(idx<0){ss('✗ User not found.',false);return;}
+  if(users[idx].password!==current){ss('✗ Current password incorrect.',false);return;}
+  if(!newPw||newPw.length<6){ss('✗ Min 6 characters.',false);return;}
+  if(newPw!==conf){ss('✗ Passwords do not match.',false);return;}
+  users[idx].password=newPw;saveUsers(users);ss('✓ Password changed!',true);
+  setTimeout(()=>{document.getElementById('chpw-modal').style.display='none';['chpw-current','chpw-new','chpw-confirm'].forEach(id=>document.getElementById(id).value='');st.style.display='none';},1500);
+}
+(function(){
+  const session=getCurrentSession();
+  if(!session){document.getElementById('pw-gate').style.display='flex';setTimeout(()=>document.getElementById('login-email').focus(),100);}
+  else _updateTopbar(session.role,session.name);
+})();
+
+/* ══ THEME SWITCHER ══ */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('bonus_audit_theme', t);
+  /* Update active dot indicator */
+  ['dark','medium','light'].forEach(n=>{
+    const btn = document.getElementById('theme-'+n);
+    if(!btn) return;
+    if(n===t){
+      btn.style.border = '2px solid var(--accent)';
+      btn.style.transform = 'scale(1.2)';
+    } else {
+      btn.style.border = '2px solid transparent';
+      btn.style.transform = 'scale(1)';
+    }
+  });
+  /* Fix sign-out button color for light mode */
+  const so = document.querySelector('button[onclick="logoutUser()"]');
+  if(so){
+    if(t==='light'){
+      so.style.background='#fee2e2';so.style.borderColor='#fca5a5';so.style.color='#dc2626';
+    } else {
+      so.style.background='#2d1b1b';so.style.borderColor='#7f1d1d';so.style.color='#fca5a5';
+    }
+  }
+  /* Fix login gate background */
+  const gate = document.getElementById('pw-gate');
+  if(gate) gate.style.background = t==='light'?'#f0f4f8':t==='medium'?'#1e2a3a':'#0a0f1e';
+}
+
+/* Load saved theme on start */
+(function(){
+  const saved = localStorage.getItem('bonus_audit_theme') || 'dark';
+  setTheme(saved);
+})();
+
+
+/* ══ SETTINGS DROPDOWN ══ */
+function toggleSettings(){
+  const dd=document.getElementById('settings-dropdown');
+  dd.style.display=dd.style.display==='none'?'block':'none';
+}
+function closeSettings(){
+  const dd=document.getElementById('settings-dropdown');
+  if(dd) dd.style.display='none';
+}
+document.addEventListener('click',function(e){
+  const btn=document.getElementById('settings-btn');
+  const dd=document.getElementById('settings-dropdown');
+  if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target)){
+    dd.style.display='none';
+  }
+});
+
+
+/* ══ EDIT ROW ══ */
+let _editIdx = null;
+
+function openEditRow(idx){
+  _editIdx = idx;
+  const r = ROWS[idx];
+  if(!r) return;
+  const modal = document.getElementById('edit-row-modal');
+  const info  = document.getElementById('edit-row-info');
+  const amtEl = document.getElementById('edit-amt');
+  info.innerHTML = '<b>'+esc(r.name)+'</b> &nbsp;·&nbsp; '+esc(r.email||'—')+'<br>Current amount: <b>'+fmt(r.amount)+'</b> &nbsp;·&nbsp; Net: <b>'+fmt(r.net)+'</b>';
+  amtEl.value = r.amount;
+  document.getElementById('edit-reason').value = '';
+  document.getElementById('edit-preview').innerHTML = '';
+  amtEl.oninput = previewEdit;
+  modal.style.display = 'flex';
+  amtEl.focus();
+}
+
+function previewEdit(){
+  const r = ROWS[_editIdx];
+  if(!r) return;
+  const newAmt = parseFloat(document.getElementById('edit-amt').value)||0;
+  const {gst,mgmt,net} = netRev(newAmt, r.cat);
+  const netAdj = net - (r.extraPay||0);
+  const inc = netAdj * r.rate/100;
+  document.getElementById('edit-preview').innerHTML =
+    'New: GST='+fmt(gst)+' &nbsp; Mgmt='+fmt(mgmt)+' &nbsp; Net='+fmt(net)+' &nbsp; Incentive='+fmtD(inc);
+}
+
+function saveEditRow(){
+  const r = ROWS[_editIdx];
+  if(!r) return;
+  const newAmt = parseFloat(document.getElementById('edit-amt').value)||0;
+  const reason = document.getElementById('edit-reason').value.trim();
+  if(!newAmt){ alert('Enter a valid amount.'); return; }
+
+  /* Log the edit */
+  const logEntry = 'Edited '+fmt(r.amount)+' → '+fmt(newAmt)+' on '+new Date().toLocaleDateString('en-IN')+(reason?' ('+reason+')':'');
+  if(!r._editLog) r._editLog=[];
+  r._editLog.push(logEntry);
+
+  /* Update amount and recalculate */
+  r.amount = newAmt;
+  const {gst,mgmt,net} = netRev(newAmt, r.cat);
+  r.gst = gst; r.mgmt = mgmt; r.net = net;
+
+  /* Re-run match to update extraPay and roundOff */
+  const {status,remark,mAmt,roundOff,extraPay} = doMatch(r.name, newAmt, r.email);
+  r.status=status; r.mAmt=mAmt; r.roundOff=roundOff; r.extraPay=extraPay;
+  r.netAdj = net - extraPay;
+  r.incentive = r.netAdj * r.rate/100;
+
+  /* Append edit log to remarks */
+  r.remarks = (r.remarks?r.remarks+' | ':'')+logEntry;
+  r.remark = remark;
+
+  closeEditRow();
+  renderTable();
+  renderRepSum();
+  renderDashboard();
+}
+
+function closeEditRow(){
+  document.getElementById('edit-row-modal').style.display='none';
+  _editIdx=null;
+}
+
+
+/* ══ BACKEND API ══ */
+let API_URL = localStorage.getItem('bonus_api_url') || '';
+
+async function api(action, data={}, requireAuth=true) {
+  if (!API_URL) return {ok:false, error:'API not configured. Go to Settings → Backend.'};
+  const token = sessionStorage.getItem('bonus_token');
+  if (requireAuth && !token) return {ok:false, error:'Not logged in'};
+  try {
+    const params = new URLSearchParams({action, token:token||''});
+    const res = await fetch(API_URL+'?'+params, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action, token:token||'', ...data})
+    });
+    return await res.json();
+  } catch(e) {
+    return {ok:false, error:'Network error: '+e.message};
+  }
+}
+
+/* ── Override checkLogin to use backend ── */
+async function checkLogin() {
+  const email = (document.getElementById('login-email').value||'').toLowerCase().trim();
+  const pw    = document.getElementById('login-pw').value;
+  const err   = document.getElementById('login-error');
+
+  if (!API_URL) {
+    /* Fallback to localStorage users if no backend configured */
+    const users = getUsers();
+    const user  = users.find(u=>u.email.toLowerCase()===email&&u.password===pw);
+    if (user) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({email:user.email,name:user.name,role:user.role}));
+      document.getElementById('pw-gate').style.display='none';
+      document.getElementById('login-email').value='';
+      document.getElementById('login-pw').value='';
+      err.style.display='none';
+      _updateTopbar(user.role, user.name);
+      await _loadFromBackend();
+      return;
+    }
+    err.style.display='block';
+    document.getElementById('login-pw').value='';
+    return;
+  }
+
+  const result = await api('login', {email, password:pw}, false);
+  if (result.ok) {
+    sessionStorage.setItem('bonus_token', result.token);
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
+    document.getElementById('pw-gate').style.display='none';
+    document.getElementById('login-email').value='';
+    document.getElementById('login-pw').value='';
+    err.style.display='none';
+    _updateTopbar(result.user.role, result.user.name);
+    await _loadFromBackend();
+  } else {
+    err.style.display='block';
+    document.getElementById('login-pw').value='';
+    document.getElementById('login-pw').focus();
+  }
+}
+
+async function _loadFromBackend() {
+  if (!API_URL) return;
+  const res = await api('loadHistory', {});
+  if (res.ok && res.history) {
+    HIST = res.history;
+    renderHistList();
+    document.getElementById('hcnt').textContent = HIST.length;
+  }
+}
+
+/* ── Override saveHist to also save to backend ── */
+const _origSaveHist = saveHist;
+async function saveHistWithBackend(period) {
+  _origSaveHist(period); /* save locally first */
+  if (!API_URL) return;
+  const res = await api('saveAudit', {
+    period,
+    rows:    ROWS,
+    repCfg:  REPS,
+    refunds: REFUNDS
+  });
+  if (!res.ok) console.warn('Backend save failed:', res.error);
+  else {
+    const st = document.getElementById('run-st');
+    if (st) { st.textContent='✓ Saved to Google Sheets'; setTimeout(()=>st.textContent='',3000); }
+  }
+}
+
+/* ── Override logoutUser to clear token ── */
+const _origLogout = logoutUser;
+function logoutUser() {
+  sessionStorage.removeItem('bonus_token');
+  _origLogout();
+}
+
+/* ── Override addUser to use backend ── */
+async function addUser() {
   const name  = document.getElementById('um-name').value.trim();
   const email = document.getElementById('um-email').value.trim().toLowerCase();
   const pw    = document.getElementById('um-pw').value;
   const role  = document.getElementById('um-role').value;
-  const status= document.getElementById('um-add-status');
+  const st    = document.getElementById('um-add-status');
+  function ss(msg,ok){st.style.display='block';st.style.background=ok?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';st.style.border='1px solid '+(ok?'var(--green)':'var(--red)');st.style.color=ok?'#34d399':'#f87171';st.textContent=msg;}
 
-  function showSt(msg,ok){
-    status.style.display='block';
-    status.style.background=ok?'#f0faf6':'#fff8f8';
-    status.style.border='1px solid '+(ok?'#9fe1cb':'#f5c6c6');
-    status.style.color=ok?'#085041':'#b01e1e';
-    status.textContent=msg;
-  }
+  if (!name||!email||!pw){ss('✗ All fields required.',false);return;}
+  if (pw.length<6){ss('✗ Password min 6 chars.',false);return;}
 
-  if(!name||!email||!pw){showSt('✗ All fields are required.',false);return;}
-  if(pw.length<6){showSt('✗ Password must be at least 6 characters.',false);return;}
-  if(!/\S+@\S+\.\S+/.test(email)){showSt('✗ Enter a valid email address.',false);return;}
-
-  const users=getUsers();
-  if(users.find(u=>u.email===email)){showSt('✗ This email is already registered.',false);return;}
-
-  users.push({name,email,password:pw,role});
-  saveUsers(users);
-  showSt('✓ User '+name+' added successfully!',true);
-  document.getElementById('um-name').value='';
-  document.getElementById('um-email').value='';
-  document.getElementById('um-pw').value='';
-  setTimeout(()=>status.style.display='none',2500);
-}
-
-function removeUser(i){
-  const users=getUsers();
-  if(!confirm('Remove user '+users[i].name+'?')) return;
-  users.splice(i,1);
-  saveUsers(users);
-  renderUserList();
-}
-
-/* ── CHANGE MY PASSWORD ── */
-function changePassword(){
-  const session = getCurrentSession();
-  if(!session){return;}
-  const current = document.getElementById('chpw-current').value;
-  const newPw   = document.getElementById('chpw-new').value.trim();
-  const confirm = document.getElementById('chpw-confirm').value.trim();
-  const status  = document.getElementById('chpw-status');
-
-  function showSt(msg,ok){
-    status.style.display='block';
-    status.style.background=ok?'#f0faf6':'#fff8f8';
-    status.style.border='1px solid '+(ok?'#9fe1cb':'#f5c6c6');
-    status.style.color=ok?'#085041':'#b01e1e';
-    status.textContent=msg;
-  }
-
-  const users=getUsers();
-  const idx=users.findIndex(u=>u.email===session.email);
-  if(idx<0){showSt('✗ User not found.',false);return;}
-  if(users[idx].password!==current){showSt('✗ Current password is incorrect.',false);return;}
-  if(!newPw||newPw.length<6){showSt('✗ New password must be at least 6 characters.',false);return;}
-  if(newPw!==confirm){showSt('✗ Passwords do not match.',false);return;}
-
-  users[idx].password=newPw;
-  saveUsers(users);
-  showSt('✓ Password changed successfully!',true);
-  setTimeout(()=>{
-    document.getElementById('chpw-modal').style.display='none';
-    document.getElementById('chpw-current').value='';
-    document.getElementById('chpw-new').value='';
-    document.getElementById('chpw-confirm').value='';
-    status.style.display='none';
-  },1500);
-}
-
-/* ── INIT: show login if no session ── */
-(function(){
-  const session=getCurrentSession();
-  if(!session){
-    document.getElementById('pw-gate').style.display='flex';
-    setTimeout(()=>document.getElementById('login-email').focus(),100);
+  if (API_URL) {
+    const res = await api('addUser', {name, email, password:pw, role});
+    if (res.ok) { ss('✓ '+name+' added!',true); document.getElementById('um-name').value=''; document.getElementById('um-email').value=''; document.getElementById('um-pw').value=''; setTimeout(()=>st.style.display='none',2500); }
+    else ss('✗ '+res.error, false);
   } else {
-    const tu=document.getElementById('topbar-user');
-    if(tu) tu.textContent='👤 '+session.name+' ('+session.role+')';
-    const ubtn=document.querySelector('button[onclick*="umTab"]');
-    if(ubtn) ubtn.style.display = session.role==='admin'?'':'none';
+    /* fallback localStorage */
+    const users = getUsers();
+    if (users.find(u=>u.email===email)){ss('✗ Email already registered.',false);return;}
+    users.push({name,email,password:pw,role}); saveUsers(users);
+    ss('✓ '+name+' added!',true);
+    document.getElementById('um-name').value=''; document.getElementById('um-email').value=''; document.getElementById('um-pw').value='';
+    setTimeout(()=>st.style.display='none',2500);
   }
-})();
+}
+
+/* ── Override changePassword to use backend ── */
+async function changePassword() {
+  const session  = getCurrentSession(); if(!session)return;
+  const current  = document.getElementById('chpw-current').value;
+  const newPw    = document.getElementById('chpw-new').value.trim();
+  const conf     = document.getElementById('chpw-confirm').value.trim();
+  const st       = document.getElementById('chpw-status');
+  function ss(msg,ok){st.style.display='block';st.style.background=ok?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';st.style.border='1px solid '+(ok?'var(--green)':'var(--red)');st.style.color=ok?'#34d399':'#f87171';st.textContent=msg;}
+
+  if(!newPw||newPw.length<6){ss('✗ Min 6 characters.',false);return;}
+  if(newPw!==conf){ss('✗ Passwords do not match.',false);return;}
+
+  if (API_URL) {
+    const res = await api('changePassword', {currentPw:current, newPw});
+    if (res.ok) { ss('✓ Password changed!',true); setTimeout(()=>{document.getElementById('chpw-modal').style.display='none';['chpw-current','chpw-new','chpw-confirm'].forEach(id=>document.getElementById(id).value='');st.style.display='none';},1500); }
+    else ss('✗ '+res.error, false);
+  } else {
+    /* fallback */
+    const users=getUsers(),idx=users.findIndex(u=>u.email===session.email);
+    if(idx<0){ss('✗ User not found.',false);return;}
+    if(users[idx].password!==current){ss('✗ Current password incorrect.',false);return;}
+    users[idx].password=newPw; saveUsers(users);
+    ss('✓ Password changed!',true);
+    setTimeout(()=>{document.getElementById('chpw-modal').style.display='none';['chpw-current','chpw-new','chpw-confirm'].forEach(id=>document.getElementById(id).value='');st.style.display='none';},1500);
+  }
+}
+
+/* ── Override saveEditRow to log to backend ── */
+async function saveEditRow() {
+  const r = ROWS[_editIdx]; if(!r) return;
+  const newAmt = parseFloat(document.getElementById('edit-amt').value)||0;
+  const reason = document.getElementById('edit-reason').value.trim();
+  if(!newAmt){ alert('Enter a valid amount.'); return; }
+  const oldAmt = r.amount;
+  const logEntry='Edited '+fmt(oldAmt)+' → '+fmt(newAmt)+' on '+new Date().toLocaleDateString('en-IN')+(reason?' ('+reason+')':'');
+  if(!r._editLog) r._editLog=[];
+  r._editLog.push(logEntry);
+  r.amount=newAmt;
+  const {gst,mgmt,net}=netRev(newAmt,r.cat);
+  r.gst=gst; r.mgmt=mgmt; r.net=net;
+  const {status,remark,mAmt,roundOff,extraPay}=doMatch(r.name,newAmt,r.email);
+  r.status=status; r.mAmt=mAmt; r.roundOff=roundOff; r.extraPay=extraPay;
+  r.netAdj=net-extraPay; r.incentive=r.netAdj*r.rate/100;
+  r.remarks=(r.remarks?r.remarks+' | ':'')+logEntry; r.remark=remark;
+  if (API_URL) {
+    await api('saveEditLog', {
+      period: document.getElementById('period-lbl').textContent||'',
+      edit:{ rowIdx:r.idx, studentName:r.name, email:r.email, oldAmount:oldAmt, newAmount:newAmt, reason }
+    });
+  }
+  closeEditRow(); renderTable(); renderRepSum(); renderDashboard();
+}
+
+/* ── Backend config in Settings ── */
+function openBackendConfig() {
+  const url = prompt('Enter your Google Apps Script Web App URL:\n(Deploy as Web App → Anyone can access)', API_URL||'');
+  if (url === null) return;
+  API_URL = url.trim();
+  localStorage.setItem('bonus_api_url', API_URL);
+  if (API_URL) {
+    api('ping', {}, false).then(r => {
+      if (r.ok) alert('✓ Backend connected successfully!\n'+r.msg);
+      else alert('✗ Could not connect: '+r.error);
+    });
+  }
+}
 
 /* INIT */
 addRep('Kevin',400000,10);
-addRep('Dinesh',1700000,5);
+addRep('Dinesh',1500000,5);
 addRep('Mathiew',400000,10);
-addRep('Hari',1700000,5);
+addRep('Hari',1200000,5);
 loadPersistedHist();
 </script>
-</body>
-</html>
+
+</body></html>
