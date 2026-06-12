@@ -2,10 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://script.google.com https://script.googleusercontent.com https://fonts.googleapis.com https://fonts.gstatic.com; connect-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://script.google.com https://script.googleusercontent.com;">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bonus Audit Tool v2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  function tryFallback(){
+    if(typeof XLSX!=="undefined") return;
+    console.warn("XLSX CDN failed, loading fallback...");
+    var s=document.createElement("script");
+    s.src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js";
+    document.head.appendChild(s);
+  }
+  setTimeout(tryFallback, 2000);
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -565,24 +577,25 @@ select option{background:var(--surface2);color:var(--text)}
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">&#9998; Log a new refund manually</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px">
-        <div><label style="font-size:10px;font-weight:600;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase">Refund date</label>
-          <input type="text" id="rf-date" placeholder="e.g. 05-Apr-26" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit"></div>
-        <div><label style="font-size:10px;font-weight:600;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase">Student name</label>
-          <input type="text" id="rf-student" placeholder="Full name" oninput="autoDetectRep(this.value)" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit"></div>
-        <div><label style="font-size:10px;font-weight:600;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase">Email</label>
-          <input type="text" id="rf-email" placeholder="student@email.com" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit"></div>
-        <div><label style="font-size:10px;font-weight:600;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase">Sales rep (auto-detected)</label>
-          <div id="rf-rep-display" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface2);color:var(--text3);min-height:32px">Enter student name to auto-detect</div>
+        <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Refund date</label>
+          <input type="text" id="rf-date" placeholder="e.g. 05-Apr-26" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
+        <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Student name</label>
+          <input type="text" id="rf-student" placeholder="Full name" oninput="autoDetectRep(this.value)" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
+        <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Email</label>
+          <input type="text" id="rf-email" placeholder="student@email.com" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
+        <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Sales rep (auto-detected)</label>
+          <div id="rf-rep-display" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;background:#f5f5f0;color:#888;min-height:32px">Enter student name to auto-detect</div>
           <input type="hidden" id="rf-rep" value=""></div>
-        <div><label style="font-size:10px;font-weight:600;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase">Refund amount (₹)</label>
-          <input type="number" id="rf-amount" placeholder="e.g. 31999" oninput="previewDeduction()" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit"></div>
-        <div style="display:none"><select id="rf-pct" onchange="previewDeduction()">
+        <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Refund amount (₹)</label>
+          <input type="number" id="rf-amount" placeholder="e.g. 31999" oninput="previewDeduction()" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
+        <div><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Incentive %</label>
+          <select id="rf-pct" onchange="previewDeduction()" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit">
             <option value="5">5%</option><option value="8">8%</option><option value="10">10%</option><option value="12">12%</option>
           </select></div>
-        <div style="grid-column:1/-1"><label style="font-size:10px;font-weight:600;color:var(--text3);display:block;margin-bottom:4px;text-transform:uppercase">Reason for refund</label>
-          <input type="text" id="rf-reason" placeholder="e.g. Student withdrew, Course cancellation" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit"></div>
+        <div style="grid-column:1/-1"><label style="font-size:10px;font-weight:600;color:#888;display:block;margin-bottom:4px;text-transform:uppercase">Reason for refund</label>
+          <input type="text" id="rf-reason" placeholder="e.g. Student withdrew, Course cancellation" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit"></div>
       </div>
-      <div id="rf-preview" style="display:none;background:var(--surface2);border:1px solid var(--amber);border-radius:7px;padding:9px 14px;font-size:12px;margin-bottom:10px">
+      <div id="rf-preview" style="display:none;background:#fff8f2;border:1px solid #f5cba7;border-radius:7px;padding:9px 14px;font-size:12px;margin-bottom:10px">
         <span style="color:#ba7517;font-weight:600">Incentive deduction preview: </span>
         <span id="rf-preview-val" style="font-family:monospace;font-weight:700;color:#e24b4a"></span>
       </div>
@@ -2021,15 +2034,15 @@ function renderRepSum(){
       const net=ts.memberNets[rep.name]||0;
       const share=ts.teamOrgNet>0?(net/ts.teamOrgNet*100).toFixed(1):0;
       const repInc=parseFloat((ts.teamSurplus*(ts.teamOrgNet>0?net/ts.teamOrgNet:0)*(rep.orgRate||5)/100).toFixed(2));
-      return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0ec;font-size:12px;">
         <div class="rav" style="width:24px;height:24px;font-size:10px;">${ini(rep.name)}</div>
         <span style="font-weight:600;min-width:70px;">${esc(rep.name)}</span>
-        <span style="color:var(--text2);min-width:80px;font-family:monospace;">${fmt(net)}</span>
-        <span style="color:var(--text2);min-width:50px;">${share}%</span>
+        <span style="color:#888;min-width:80px;font-family:monospace;">${fmt(net)}</span>
+        <span style="color:#888;min-width:50px;">${share}%</span>
         <span style="font-family:monospace;font-weight:600;color:#1a3a5c;">${fmtD(repInc)}</span>
       </div>`;
     }).join('');
-    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+    return`<div style="background:#fff;border:1px solid #e0ddd4;border-radius:10px;overflow:hidden;margin-bottom:16px;">
       <div style="background:#1a3a5c;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;">
         <span style="font-size:15px;">&#128101;</span>
         <span style="font-weight:700;font-size:14px;flex:1;">${team.name}: ${team.repNames.join(' + ')}</span>
@@ -2039,22 +2052,22 @@ function renderRepSum(){
       </div>
       <div style="padding:14px 16px;">
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;">
-            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team organic net</div>
-            <div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--text);">${fmt(ts.teamOrgNet)}</div>
+          <div style="background:#f5f8fc;border-radius:6px;padding:8px 12px;">
+            <div style="font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team organic net</div>
+            <div style="font-size:16px;font-weight:700;font-family:monospace;">${fmt(ts.teamOrgNet)}</div>
           </div>
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;">
-            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Combined target</div>
-            <div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--text);">&#8377;${ts.teamTarget.toLocaleString('en-IN')}</div>
+          <div style="background:#f5f8fc;border-radius:6px;padding:8px 12px;">
+            <div style="font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Combined target</div>
+            <div style="font-size:16px;font-weight:700;font-family:monospace;">&#8377;${ts.teamTarget.toLocaleString('en-IN')}</div>
           </div>
           <div style="background:${achieved?'#f0faf6':'#fff8f8'};border-radius:6px;padding:8px 12px;">
-            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team surplus</div>
+            <div style="font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team surplus</div>
             <div style="font-size:16px;font-weight:700;font-family:monospace;color:${achieved?'#1d9e75':'#e24b4a'};">${fmt(ts.teamSurplus)}</div>
             ${!achieved?'<div style="font-size:10px;color:#e24b4a;font-weight:600;margin-top:3px;">&#9888; Target not met — no organic bonus</div>':''}
           </div>
         </div>
         <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">Rep breakdown</div>
-        <div style="display:flex;font-size:10px;color:var(--text3);gap:8px;padding-bottom:4px;">
+        <div style="display:flex;font-size:10px;color:#aaa;gap:8px;padding-bottom:4px;">
           <span style="min-width:32px;"></span>
           <span style="min-width:70px;">Name</span>
           <span style="min-width:80px;">Org net</span>
@@ -2062,7 +2075,7 @@ function renderRepSum(){
           <span>Organic incentive</span>
         </div>
         ${membersHtml}
-        <div style="font-size:10px;font-family:monospace;color:var(--text3);margin-top:8px;padding:6px 8px;background:var(--surface2);border-radius:4px;">
+        <div style="font-size:10px;font-family:monospace;color:#888;margin-top:8px;padding:6px 8px;background:#f5f5f0;border-radius:4px;">
           Formula: Team surplus &#215; Rep share% &#215; Rep organic rate%
         </div>
       </div>
@@ -2089,19 +2102,19 @@ function renderRepSum(){
         <div style="height:1px;background:#f0f0ec;margin:7px 0"></div>
         <div class="rs-row"><span class="l">Organic net (excl.GST)</span><span class="v">${fmt(d.orgNet)}</span></div>
         ${d.teamInfo?`
-        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin:6px 0;font-size:11px;">
-          <div style="font-weight:700;color:var(--accent2);margin-bottom:5px;">&#128101; ${d.teamInfo.teamName} — pooled calculation</div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--text2);">${esc(rep.name)}'s organic net</span><span style="font-family:monospace;font-weight:600;color:var(--text);">${fmt(d.orgNet)}</span></div>
+        <div style="background:#f0f4fc;border-radius:6px;padding:8px 10px;margin:6px 0;font-size:11px;">
+          <div style="font-weight:700;color:#1a3a5c;margin-bottom:5px;">&#128101; ${d.teamInfo.teamName} — pooled calculation</div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">${esc(rep.name)}'s organic net</span><span style="font-family:monospace;font-weight:600;">${fmt(d.orgNet)}</span></div>
           ${d.teamInfo.coveredFor>0?`<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#e24b4a;">Covered for teammate's shortfall</span><span style="font-family:monospace;color:#e24b4a;">&#8722;${fmt(d.teamInfo.coveredFor)}</span></div>`:''}
-          <div style="display:flex;justify-content:space-between;padding:2px 0;${d.teamInfo.coveredFor>0?'border-top:1px dashed #c8d4ea;margin-top:2px;':''}"><span style="color:var(--text2);font-weight:600;">Effective net</span><span style="font-family:monospace;font-weight:700;color:var(--text);">${fmt(d.teamInfo.effectiveNet)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--text2);">${esc(rep.name)}'s target</span><span style="font-family:monospace;color:var(--text);">&#8377;${(rep.target||0).toLocaleString('en-IN')}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;${d.teamInfo.coveredFor>0?'border-top:1px dashed #c8d4ea;margin-top:2px;':''}"><span style="color:#666;font-weight:600;">Effective net</span><span style="font-family:monospace;font-weight:700;">${fmt(d.teamInfo.effectiveNet)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">${esc(rep.name)}'s target</span><span style="font-family:monospace;">&#8377;${(rep.target||0).toLocaleString('en-IN')}</span></div>
           <div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px dashed #c8d4ea;margin-top:3px;"><span style="color:${d.teamInfo.indivSurplus>0?'#1d9e75':'#e24b4a'};font-weight:600;">Surplus</span><span style="font-family:monospace;font-weight:700;color:${d.teamInfo.indivSurplus>0?'#1d9e75':'#e24b4a'};">${fmt(d.teamInfo.indivSurplus)}</span></div>
           ${!d.teamInfo.teamTargetMet
             ?`<div style="font-size:11px;color:#e24b4a;font-weight:600;margin-top:4px;padding:4px 6px;background:#fff0f0;border-radius:4px;">
                 &#9888; Team combined target not met — no organic bonus for anyone
               </div>`
             :d.teamInfo.targetMet
-              ?`<div style="font-family:monospace;color:var(--text3);font-size:10px;margin-top:4px;padding-top:4px;border-top:1px dashed var(--border2);">
+              ?`<div style="font-family:monospace;color:#888;font-size:10px;margin-top:4px;padding-top:4px;border-top:1px dashed #c8d4ea;">
                   ${fmt(d.teamInfo.indivSurplus)} &times; ${rep.orgRate||5}% = ${fmtD(d.orgInc)}
                 </div>`
               :`<div style="font-size:11px;color:#e24b4a;font-weight:600;margin-top:4px;padding:4px 6px;background:#fff0f0;border-radius:4px;">
