@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://script.google.com https://script.googleusercontent.com https://fonts.googleapis.com https://fonts.gstatic.com; connect-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://script.google.com https://script.googleusercontent.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bonus Audit Tool v2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -141,6 +142,9 @@ select option{background:var(--surface2);color:var(--text)}
       <button onclick="checkLogin()" style="width:100%;padding:12px;background:var(--accent,#3b82f6);border:none;color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">Sign in →</button>
     </div>
     <div style="text-align:center;margin-top:18px;font-size:10px;color:var(--text3)">Contact your administrator to get access.</div>
+    <div style="text-align:center;margin-top:12px">
+      <button onclick="loginConfigBackend()" style="background:transparent;border:none;color:var(--text3);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">⚙ Configure backend</button>
+    </div>
   </div>
 </div>
 
@@ -224,9 +228,9 @@ select option{background:var(--surface2);color:var(--text)}
       </button>
       <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;overflow:hidden">
 
-        <!-- Backend config -->
+        <!-- Google Sheets backend -->
         <button onclick="openBackendConfig();closeSettings()" style="width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
-          &#9729; Backend (Google Sheets)
+          &#128196; Connect Google Sheets
         </button>
 
         <!-- Theme -->
@@ -241,10 +245,7 @@ select option{background:var(--surface2);color:var(--text)}
 
         <!-- Admin-only items -->
         <div id="settings-admin-section">
-          <button id="deploy-btn-topbar" onclick="openDeployModal();closeSettings()" style="display:none;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
-            &#9650; Deploy to GitHub
-          </button>
-          <button id="users-btn-topbar" onclick="document.getElementById('chpw-modal').style.display='flex';umTab('add');closeSettings()" style="display:none;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
+                    <button id="users-btn-topbar" onclick="document.getElementById('chpw-modal').style.display='flex';umTab('add');closeSettings()" style="display:none;width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border)">
             &#128101; Manage users
           </button>
         </div>
@@ -261,56 +262,7 @@ select option{background:var(--surface2);color:var(--text)}
   </div>
 </div>
 
-<!-- DEPLOY MODAL -->
-<div id="deploy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:500px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <div>
-        <div style="font-size:16px;font-weight:700;color:#1a3a5c">&#9650; Deploy to GitHub Pages</div>
-        <div style="font-size:11px;color:#888;margin-top:3px">One-click update your live site</div>
-      </div>
-      <span onclick="closeDeployModal()" style="font-size:22px;color:#aaa;cursor:pointer;line-height:1">&#215;</span>
-    </div>
 
-    <!-- Step 1: Token -->
-    <div id="deploy-step-token">
-      <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px">Step 1 of 2 — GitHub Personal Access Token</div>
-      <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.6">
-        You need a token so this tool can push files to your GitHub repo.<br>
-        <a href="https://github.com/settings/tokens/new?scopes=repo&description=BonusAuditTool" target="_blank" style="color:#1a3a5c;font-weight:600">&#8599; Click here to create one</a>
-        &nbsp;(check <b>repo</b> scope → Generate → copy it)
-      </div>
-      <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Personal Access Token</label>
-      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-        style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:14px">
-
-      <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px">Step 2 of 2 — Repository details</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">GitHub Username</label>
-          <input type="text" id="gh-user" placeholder="e.g. john123"
-            style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
-        </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Repository Name</label>
-          <input type="text" id="gh-repo" placeholder="e.g. bonus-audit-tool"
-            style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;box-sizing:border-box">
-        </div>
-      </div>
-
-      <div style="background:#fffcf2;border:1px solid #e8e0c8;border-radius:7px;padding:9px 12px;font-size:11px;color:#633806;margin-bottom:16px;line-height:1.6">
-        &#9888; Your token is used only for this upload and is <b>never stored anywhere</b>. It stays in memory only while this page is open.
-      </div>
-
-      <div id="deploy-status" style="display:none;padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:12px"></div>
-
-      <div style="display:flex;gap:8px">
-        <button onclick="closeDeployModal()" style="flex:1;padding:10px;border:1px solid #ddd;background:#fff;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
-        <button onclick="runDeploy()" id="deploy-btn" style="flex:2;padding:10px;background:#2da44e;border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">&#9650; Deploy now</button>
-      </div>
-    </div>
-  </div>
-</div>
 <div class="wrap">
   <div class="tabs">
     <div class="tab active" id="tabBtn-dashboard" onclick="goTab('dashboard')">&#9632; Dashboard</div>
@@ -672,6 +624,57 @@ select option{background:var(--surface2);color:var(--text)}
 </div><!-- end wrap -->
 
 <script>
+/* ══ AUTH ══ */
+const SESSION_KEY = 'bonus_session';
+const USERS_KEY   = 'bonus_users';
+
+function getUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    const users = raw ? JSON.parse(raw) : [];
+    /* Ensure default admin always exists */
+    if (!users.find(u => u.email === 'admin@bonusaudit.com')) {
+      users.push({name:'Admin', email:'admin@bonusaudit.com', password:'Bonus@2026', role:'admin'});
+      saveUsers(users);
+    }
+    return users;
+  } catch(e) { return [{name:'Admin', email:'admin@bonusaudit.com', password:'Bonus@2026', role:'admin'}]; }
+}
+
+function saveUsers(users) {
+  try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch(e) {}
+}
+
+function getCurrentSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function _updateTopbar(role, name) {
+  const el = document.getElementById('topbar-user');
+  if (el) el.textContent = name + (role === 'admin' ? ' (Admin)' : '');
+}
+
+/* Show login gate on load if not logged in */
+window.addEventListener('DOMContentLoaded', function() {
+  const gate = document.getElementById('pw-gate');
+  if (!getCurrentSession()) {
+    if (gate) gate.style.display = 'flex';
+  } else {
+    if (gate) gate.style.display = 'none';
+    const s = getCurrentSession();
+    _updateTopbar(s.role, s.name);
+  }
+});
+
+function logoutUser() {
+  sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem('bonus_token');
+  location.reload();
+}
+
 /* ══ RATES & CONFIG ══ */
 const ORGANIC_LEADS=['website','contact us','contact us form','contact us page','youtube','yt','direct','direct inquiry','direct enquiry','reference','refrence','referral','organic','walk in','walk-in','phone call','event','seminar','whatsapp'];
 const META89_LEADS=['meta 89rs','meta89rs','tamil instagram'];
@@ -2751,253 +2754,6 @@ function renderDashboard(){
 }
 
 
-/* ══ GITHUB DEPLOY ══ */
-function openDeployModal(){
-  document.getElementById('deploy-modal').style.display='flex';
-  /* Restore saved username/repo */
-  try{
-    const saved=JSON.parse(localStorage.getItem('gh_deploy_cfg')||'{}');
-    if(saved.user) document.getElementById('gh-user').value=saved.user;
-    if(saved.repo) document.getElementById('gh-repo').value=saved.repo;
-  }catch(e){}
-}
-function closeDeployModal(){
-  document.getElementById('deploy-modal').style.display='none';
-  document.getElementById('deploy-status').style.display='none';
-}
-
-function deployStatus(msg, type){
-  const el=document.getElementById('deploy-status');
-  el.style.display='block';
-  el.style.background=type==='ok'?'#f0faf6':type==='err'?'#fff8f8':'#f0f4f8';
-  el.style.border='1px solid '+(type==='ok'?'#9fe1cb':type==='err'?'#f5c6c6':'#c5d4f0');
-  el.style.color=type==='ok'?'#085041':type==='err'?'#b01e1e':'#0c447c';
-  el.innerHTML=msg;
-}
-
-async function runDeploy(){
-  const token = document.getElementById('gh-token').value.trim();
-  const user  = document.getElementById('gh-user').value.trim();
-  const repo  = document.getElementById('gh-repo').value.trim();
-
-  if(!token||!user||!repo){
-    deployStatus('&#9888; Please fill in all three fields.','err');
-    return;
-  }
-
-  const btn=document.getElementById('deploy-btn');
-  btn.textContent='Uploading...';
-  btn.disabled=true;
-  deployStatus('&#8635; Connecting to GitHub...','info');
-
-  try{
-    /* Save username + repo for next time (not the token) */
-    localStorage.setItem('gh_deploy_cfg',JSON.stringify({user,repo}));
-
-    /* Get current file SHA (needed for update) */
-    const shaRes = await fetch(
-      `https://api.github.com/repos/${user}/${repo}/contents/index.html`,
-      {headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}}
-    );
-
-    let sha = null;
-    if(shaRes.ok){
-      const shaData = await shaRes.json();
-      sha = shaData.sha;
-      deployStatus('&#8635; File found — updating...','info');
-    } else if(shaRes.status===404){
-      deployStatus('&#8635; Creating new file...','info');
-    } else {
-      throw new Error('Could not reach repo. Check username, repo name and token permissions.');
-    }
-
-    /* Fetch the original source file — avoids deploying the live DOM
-       which is missing dynamically-rendered sections (rep upload area etc.) */
-    let html;
-    try {
-      const srcRes = await fetch(window.location.href);
-      if(!srcRes.ok) throw new Error('fetch failed');
-      html = await srcRes.text();
-    } catch(e) {
-      html = '<!DOCTYPE html>\n'+document.documentElement.outerHTML;
-    }
-    const encoded = btoa(unescape(encodeURIComponent(html)));
-
-    /* Push to GitHub */
-    const body = {
-      message: 'Update Bonus Audit Tool — '+new Date().toLocaleDateString('en-IN'),
-      content: encoded,
-      ...(sha ? {sha} : {})
-    };
-
-    const pushRes = await fetch(
-      `https://api.github.com/repos/${user}/${repo}/contents/index.html`,
-      {method:'PUT',headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-       body:JSON.stringify(body)}
-    );
-
-    if(pushRes.ok){
-      const liveUrl=`https://${user}.github.io/${repo}`;
-      deployStatus(
-        `&#10003; <b>Deployed successfully!</b><br>`+
-        `Live at: <a href="${liveUrl}" target="_blank" style="color:#085041;font-weight:600">${liveUrl}</a><br>`+
-        `<span style="font-size:11px;color:#888">May take ~30 seconds to go live. GitHub Pages needs to rebuild.</span>`,
-        'ok'
-      );
-      btn.textContent='&#10003; Deployed!';
-      btn.style.background='#1d9e75';
-    } else {
-      const err=await pushRes.json();
-      throw new Error(err.message||'Push failed (status '+pushRes.status+')');
-    }
-  } catch(e){
-    deployStatus('&#10005; Error: '+e.message,'err');
-    btn.textContent='&#9650; Deploy now';
-    btn.disabled=false;
-  }
-}
-
-/* Close modal on backdrop click */
-document.getElementById('deploy-modal').addEventListener('click',function(e){
-  if(e.target===this) closeDeployModal();
-});
-
-
-/* ══ USER AUTH SYSTEM ══ */
-const USERS_KEY='bonus_audit_users_v1', SESSION_KEY='bonus_audit_session';
-const DEFAULT_USERS=[{name:'Admin',email:'admin@bonusaudit.com',password:'Bonus@2026',role:'admin'}];
-function getUsers(){try{const r=localStorage.getItem(USERS_KEY);return r?JSON.parse(r):DEFAULT_USERS;}catch(e){return DEFAULT_USERS;}}
-function saveUsers(u){localStorage.setItem(USERS_KEY,JSON.stringify(u));}
-function getCurrentSession(){try{return JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch(e){return null;}}
-function _updateTopbar(role,name){
-  const tu=document.getElementById('topbar-user');
-  if(tu)tu.textContent='👤 '+name+' ('+role+')';
-  ['users-btn-topbar','deploy-btn-topbar'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.style.display=role==='admin'?'block':'none';
-  });
-}
-function checkLogin(){
-  const email=(document.getElementById('login-email').value||'').toLowerCase().trim();
-  const pw=document.getElementById('login-pw').value;
-  const err=document.getElementById('login-error');
-  const user=getUsers().find(u=>u.email.toLowerCase()===email&&u.password===pw);
-  if(user){
-    sessionStorage.setItem(SESSION_KEY,JSON.stringify({email:user.email,name:user.name,role:user.role}));
-    document.getElementById('pw-gate').style.display='none';
-    document.getElementById('login-email').value='';
-    document.getElementById('login-pw').value='';
-    err.style.display='none';
-    _updateTopbar(user.role,user.name);
-  }else{
-    err.style.display='block';
-    document.getElementById('login-pw').value='';
-    document.getElementById('login-pw').focus();
-    const em=document.getElementById('login-email');
-    em.style.borderColor='#ef4444';
-    setTimeout(()=>{em.style.borderColor='';document.getElementById('login-pw').style.borderColor='';},1500);
-  }
-}
-function logoutUser(){
-  if(!confirm('Sign out?'))return;
-  sessionStorage.removeItem(SESSION_KEY);
-  document.getElementById('pw-gate').style.display='flex';
-  document.getElementById('topbar-user').textContent='';
-  ['users-btn-topbar','deploy-btn-topbar'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  setTimeout(()=>document.getElementById('login-email').focus(),100);
-}
-function umTab(tab){
-  ['add','list','chpw'].forEach(t=>{
-    document.getElementById('um-panel-'+t).style.display=t===tab?'block':'none';
-    const btn=document.getElementById('um-tab-'+t);
-    if(btn){btn.style.background=t===tab?'var(--accent)':'transparent';btn.style.color=t===tab?'#fff':'var(--text3)';}
-  });
-  if(tab==='list')renderUserList();
-}
-function renderUserList(){
-  const users=getUsers(),session=getCurrentSession(),el=document.getElementById('um-user-list');
-  if(!users.length){el.innerHTML='<div class="empty">No users</div>';return;}
-  el.innerHTML=users.map((u,i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:12px">
-      <div><div style="font-weight:700;color:var(--text)">${esc(u.name)}</div>
-      <div style="color:var(--text3);margin-top:2px">${esc(u.email)} &middot; <span style="background:var(--accent-glow);color:var(--accent2);padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600">${u.role}</span></div></div>
-      ${session&&session.email!==u.email?`<button onclick="removeUser(${i})" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>`:'<span style="font-size:10px;color:var(--text3)">(you)</span>'}
-    </div>`).join('');
-}
-function addUser(){
-  const name=document.getElementById('um-name').value.trim();
-  const email=document.getElementById('um-email').value.trim().toLowerCase();
-  const pw=document.getElementById('um-pw').value;
-  const role=document.getElementById('um-role').value;
-  const st=document.getElementById('um-add-status');
-  function ss(msg,ok){st.style.display='block';st.style.background=ok?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';st.style.border='1px solid '+(ok?'var(--green)':'var(--red)');st.style.color=ok?'#34d399':'#f87171';st.textContent=msg;}
-  if(!name||!email||!pw){ss('✗ All fields required.',false);return;}
-  if(pw.length<6){ss('✗ Password min 6 chars.',false);return;}
-  const users=getUsers();
-  if(users.find(u=>u.email===email)){ss('✗ Email already registered.',false);return;}
-  users.push({name,email,password:pw,role});saveUsers(users);
-  ss('✓ '+name+' added!',true);
-  document.getElementById('um-name').value='';document.getElementById('um-email').value='';document.getElementById('um-pw').value='';
-  setTimeout(()=>st.style.display='none',2500);
-}
-function removeUser(i){const users=getUsers();if(!confirm('Remove '+users[i].name+'?'))return;users.splice(i,1);saveUsers(users);renderUserList();}
-function changePassword(){
-  const session=getCurrentSession();if(!session)return;
-  const current=document.getElementById('chpw-current').value;
-  const newPw=document.getElementById('chpw-new').value.trim();
-  const conf=document.getElementById('chpw-confirm').value.trim();
-  const st=document.getElementById('chpw-status');
-  function ss(msg,ok){st.style.display='block';st.style.background=ok?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';st.style.border='1px solid '+(ok?'var(--green)':'var(--red)');st.style.color=ok?'#34d399':'#f87171';st.textContent=msg;}
-  const users=getUsers(),idx=users.findIndex(u=>u.email===session.email);
-  if(idx<0){ss('✗ User not found.',false);return;}
-  if(users[idx].password!==current){ss('✗ Current password incorrect.',false);return;}
-  if(!newPw||newPw.length<6){ss('✗ Min 6 characters.',false);return;}
-  if(newPw!==conf){ss('✗ Passwords do not match.',false);return;}
-  users[idx].password=newPw;saveUsers(users);ss('✓ Password changed!',true);
-  setTimeout(()=>{document.getElementById('chpw-modal').style.display='none';['chpw-current','chpw-new','chpw-confirm'].forEach(id=>document.getElementById(id).value='');st.style.display='none';},1500);
-}
-(function(){
-  const session=getCurrentSession();
-  if(!session){document.getElementById('pw-gate').style.display='flex';setTimeout(()=>document.getElementById('login-email').focus(),100);}
-  else _updateTopbar(session.role,session.name);
-})();
-
-/* ══ THEME SWITCHER ══ */
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme', t);
-  localStorage.setItem('bonus_audit_theme', t);
-  /* Update active dot indicator */
-  ['dark','medium','light'].forEach(n=>{
-    const btn = document.getElementById('theme-'+n);
-    if(!btn) return;
-    if(n===t){
-      btn.style.border = '2px solid var(--accent)';
-      btn.style.transform = 'scale(1.2)';
-    } else {
-      btn.style.border = '2px solid transparent';
-      btn.style.transform = 'scale(1)';
-    }
-  });
-  /* Fix sign-out button color for light mode */
-  const so = document.querySelector('button[onclick="logoutUser()"]');
-  if(so){
-    if(t==='light'){
-      so.style.background='#fee2e2';so.style.borderColor='#fca5a5';so.style.color='#dc2626';
-    } else {
-      so.style.background='#2d1b1b';so.style.borderColor='#7f1d1d';so.style.color='#fca5a5';
-    }
-  }
-  /* Fix login gate background */
-  const gate = document.getElementById('pw-gate');
-  if(gate) gate.style.background = t==='light'?'#f0f4f8':t==='medium'?'#1e2a3a':'#0a0f1e';
-}
-
-/* Load saved theme on start */
-(function(){
-  const saved = localStorage.getItem('bonus_audit_theme') || 'dark';
-  setTheme(saved);
-})();
-
 
 /* ══ SETTINGS DROPDOWN ══ */
 function toggleSettings(){
@@ -3089,62 +2845,76 @@ function closeEditRow(){
 /* ══ BACKEND API ══ */
 let API_URL = localStorage.getItem('bonus_api_url') || '';
 
+function loginConfigBackend() {
+  const url = prompt('Enter Google Apps Script Web App URL:', API_URL||'');
+  if (url === null) return;
+  API_URL = url.trim();
+  localStorage.setItem('bonus_api_url', API_URL);
+  if (API_URL) alert('✓ Backend URL saved. Now try logging in.');
+}
+
 async function api(action, data={}, requireAuth=true) {
-  if (!API_URL) return {ok:false, error:'API not configured. Go to Settings → Backend.'};
+  if (!API_URL) return {ok:false, error:'API not configured. Go to Settings → Connect Google Sheets.'};
   const token = sessionStorage.getItem('bonus_token');
   if (requireAuth && !token) return {ok:false, error:'Not logged in'};
   try {
-    const params = new URLSearchParams({action, token:token||''});
-    const res = await fetch(API_URL+'?'+params, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action, token:token||'', ...data})
+    const d   = encodeURIComponent(JSON.stringify({action, token:token||'', ...data}));
+    const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + d;
+    /* no-cors mode — Apps Script serves the response without CORS headers
+       We use a text/plain fetch which skips preflight */
+    const res = await fetch(url, {
+      method: 'GET',
+      mode: 'no-cors',
+      redirect: 'follow'
     });
-    return await res.json();
+    /* no-cors returns opaque response — we can't read it directly.
+       Use iframe postMessage trick instead */
+    throw new Error('USE_IFRAME');
   } catch(e) {
-    return {ok:false, error:'Network error: '+e.message};
+    if (e.message !== 'USE_IFRAME') {
+      return {ok:false, error: e.message};
+    }
   }
+  /* iframe approach — creates hidden iframe, posts to Apps Script URL */
+  return new Promise((resolve) => {
+    const d   = encodeURIComponent(JSON.stringify({action, token:token||'', ...data}));
+    const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + d;
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function() {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch(e) { resolve({ok:false, error:'Invalid response from server'}); }
+    };
+    xhr.onerror = function() {
+      resolve({ok:false, error:'Network error — make sure deployment is set to Anyone access'});
+    };
+    xhr.ontimeout = function() {
+      resolve({ok:false, error:'Request timed out'});
+    };
+    xhr.timeout = 20000;
+    xhr.send();
+  });
 }
 
-/* ── Override checkLogin to use backend ── */
+
+/* ── checkLogin — local auth only ── */
 async function checkLogin() {
-  const email = (document.getElementById('login-email').value||'').toLowerCase().trim();
-  const pw    = document.getElementById('login-pw').value;
-  const err   = document.getElementById('login-error');
-
-  if (!API_URL) {
-    /* Fallback to localStorage users if no backend configured */
-    const users = getUsers();
-    const user  = users.find(u=>u.email.toLowerCase()===email&&u.password===pw);
-    if (user) {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({email:user.email,name:user.name,role:user.role}));
-      document.getElementById('pw-gate').style.display='none';
-      document.getElementById('login-email').value='';
-      document.getElementById('login-pw').value='';
-      err.style.display='none';
-      _updateTopbar(user.role, user.name);
-      await _loadFromBackend();
-      return;
-    }
-    err.style.display='block';
-    document.getElementById('login-pw').value='';
-    return;
-  }
-
-  const result = await api('login', {email, password:pw}, false);
-  if (result.ok) {
-    sessionStorage.setItem('bonus_token', result.token);
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
-    document.getElementById('pw-gate').style.display='none';
-    document.getElementById('login-email').value='';
-    document.getElementById('login-pw').value='';
-    err.style.display='none';
-    _updateTopbar(result.user.role, result.user.name);
-    await _loadFromBackend();
+  const email = (document.getElementById("login-email").value||"").toLowerCase().trim();
+  const pw    = document.getElementById("login-pw").value;
+  const err   = document.getElementById("login-error");
+  const users = getUsers();
+  const user  = users.find(u => u.email.toLowerCase() === email && u.password === pw);
+  if (user) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({email:user.email, name:user.name, role:user.role}));
+    document.getElementById("pw-gate").style.display = "none";
+    document.getElementById("login-email").value = "";
+    document.getElementById("login-pw").value = "";
+    err.style.display = "none";
+    _updateTopbar(user.role, user.name);
   } else {
-    err.style.display='block';
-    document.getElementById('login-pw').value='';
-    document.getElementById('login-pw').focus();
+    err.style.display = "block";
+    document.getElementById("login-pw").value = "";
+    document.getElementById("login-pw").focus();
   }
 }
 
@@ -3265,13 +3035,13 @@ async function saveEditRow() {
 
 /* ── Backend config in Settings ── */
 function openBackendConfig() {
-  const url = prompt('Enter your Google Apps Script Web App URL:\n(Deploy as Web App → Anyone can access)', API_URL||'');
+  const url = prompt('Connect Google Sheets Backend\n\nEnter your Google Apps Script Web App URL:', API_URL||'');
   if (url === null) return;
   API_URL = url.trim();
   localStorage.setItem('bonus_api_url', API_URL);
   if (API_URL) {
     api('ping', {}, false).then(r => {
-      if (r.ok) alert('✓ Backend connected successfully!\n'+r.msg);
+      if (r.ok) alert('✓ Google Sheets connected!\n'+r.msg);
       else alert('✗ Could not connect: '+r.error);
     });
   }
