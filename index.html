@@ -709,7 +709,7 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-function logoutUser() {
+function logoutUser_base() {
   sessionStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem('bonus_token');
   location.reload();
@@ -2070,7 +2070,7 @@ function renderRepSum(){
         <span style="font-family:monospace;font-weight:600;color:#1a3a5c;">${fmtD(repInc)}</span>
       </div>`;
     }).join('');
-    return`<div style="background:#fff;border:1px solid #e0ddd4;border-radius:10px;overflow:hidden;margin-bottom:16px;">
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
       <div style="background:#1a3a5c;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;">
         <span style="font-size:15px;">&#128101;</span>
         <span style="font-weight:700;font-size:14px;flex:1;">${team.name}: ${team.repNames.join(' + ')}</span>
@@ -2080,16 +2080,16 @@ function renderRepSum(){
       </div>
       <div style="padding:14px 16px;">
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
-          <div style="background:#f5f8fc;border-radius:6px;padding:8px 12px;">
-            <div style="font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team organic net</div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team organic net</div>
             <div style="font-size:16px;font-weight:700;font-family:monospace;">${fmt(ts.teamOrgNet)}</div>
           </div>
-          <div style="background:#f5f8fc;border-radius:6px;padding:8px 12px;">
-            <div style="font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Combined target</div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Combined target</div>
             <div style="font-size:16px;font-weight:700;font-family:monospace;">&#8377;${ts.teamTarget.toLocaleString('en-IN')}</div>
           </div>
           <div style="background:${achieved?'#f0faf6':'#fff8f8'};border-radius:6px;padding:8px 12px;">
-            <div style="font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team surplus</div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;">Team surplus</div>
             <div style="font-size:16px;font-weight:700;font-family:monospace;color:${achieved?'#1d9e75':'#e24b4a'};">${fmt(ts.teamSurplus)}</div>
             ${!achieved?'<div style="font-size:10px;color:#e24b4a;font-weight:600;margin-top:3px;">&#9888; Target not met — no organic bonus</div>':''}
           </div>
@@ -2130,8 +2130,8 @@ function renderRepSum(){
         <div style="height:1px;background:#f0f0ec;margin:7px 0"></div>
         <div class="rs-row"><span class="l">Organic net (excl.GST)</span><span class="v">${fmt(d.orgNet)}</span></div>
         ${d.teamInfo?`
-        <div style="background:#f0f4fc;border-radius:6px;padding:8px 10px;margin:6px 0;font-size:11px;">
-          <div style="font-weight:700;color:#1a3a5c;margin-bottom:5px;">&#128101; ${d.teamInfo.teamName} — pooled calculation</div>
+        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin:6px 0;font-size:11px;">
+          <div style="font-weight:700;color:var(--accent2);margin-bottom:5px;">&#128101; ${d.teamInfo.teamName} — pooled calculation</div>
           <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#666;">${esc(rep.name)}'s organic net</span><span style="font-family:monospace;font-weight:600;">${fmt(d.orgNet)}</span></div>
           ${d.teamInfo.coveredFor>0?`<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:#e24b4a;">Covered for teammate's shortfall</span><span style="font-family:monospace;color:#e24b4a;">&#8722;${fmt(d.teamInfo.coveredFor)}</span></div>`:''}
           <div style="display:flex;justify-content:space-between;padding:2px 0;${d.teamInfo.coveredFor>0?'border-top:1px dashed #c8d4ea;margin-top:2px;':''}"><span style="color:#666;font-weight:600;">Effective net</span><span style="font-family:monospace;font-weight:700;">${fmt(d.teamInfo.effectiveNet)}</span></div>
@@ -2894,44 +2894,21 @@ function loginConfigBackend() {
 }
 
 async function api(action, data={}, requireAuth=true) {
-  if (!API_URL) return {ok:false, error:'API not configured. Go to Settings → Connect Google Sheets.'};
+  if (!API_URL) return {ok:false, error:'API not configured.'};
   const token = sessionStorage.getItem('bonus_token');
   if (requireAuth && !token) return {ok:false, error:'Not logged in'};
-  try {
-    const d   = encodeURIComponent(JSON.stringify({action, token:token||'', ...data}));
-    const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + d;
-    /* no-cors mode — Apps Script serves the response without CORS headers
-       We use a text/plain fetch which skips preflight */
-    const res = await fetch(url, {
-      method: 'GET',
-      mode: 'no-cors',
-      redirect: 'follow'
-    });
-    /* no-cors returns opaque response — we can't read it directly.
-       Use iframe postMessage trick instead */
-    throw new Error('USE_IFRAME');
-  } catch(e) {
-    if (e.message !== 'USE_IFRAME') {
-      return {ok:false, error: e.message};
-    }
-  }
-  /* iframe approach — creates hidden iframe, posts to Apps Script URL */
   return new Promise((resolve) => {
-    const d   = encodeURIComponent(JSON.stringify({action, token:token||'', ...data}));
-    const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + d;
+    const payload = encodeURIComponent(JSON.stringify({action, token:token||'', ...data}));
+    const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + payload;
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.onload = function() {
       try { resolve(JSON.parse(xhr.responseText)); }
-      catch(e) { resolve({ok:false, error:'Invalid response from server'}); }
+      catch(e) { resolve({ok:false, error:'Invalid response'}); }
     };
-    xhr.onerror = function() {
-      resolve({ok:false, error:'Network error — make sure deployment is set to Anyone access'});
-    };
-    xhr.ontimeout = function() {
-      resolve({ok:false, error:'Request timed out'});
-    };
-    xhr.timeout = 20000;
+    xhr.onerror = function() { resolve({ok:false, error:'Network error'}); };
+    xhr.ontimeout = function() { resolve({ok:false, error:'Timed out'}); };
+    xhr.timeout = 30000;
     xhr.send();
   });
 }
@@ -2942,19 +2919,42 @@ async function checkLogin() {
   const email = (document.getElementById("login-email").value||"").toLowerCase().trim();
   const pw    = document.getElementById("login-pw").value;
   const err   = document.getElementById("login-error");
-  const users = getUsers();
-  const user  = users.find(u => u.email.toLowerCase() === email && u.password === pw);
-  if (user) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({email:user.email, name:user.name, role:user.role}));
-    document.getElementById("pw-gate").style.display = "none";
-    document.getElementById("login-email").value = "";
-    document.getElementById("login-pw").value = "";
-    err.style.display = "none";
-    _updateTopbar(user.role, user.name);
+  if (API_URL) {
+    const btn = document.querySelector('#pw-gate button[onclick="checkLogin()"]');
+    if(btn){btn.textContent='Signing in…';btn.disabled=true;}
+    const res = await api('login',{email,password:pw},false);
+    if(btn){btn.textContent='Sign in →';btn.disabled=false;}
+    if(res.ok){
+      sessionStorage.setItem('bonus_token',res.token);
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify({email:res.user.email,name:res.user.name,role:res.user.role}));
+      document.getElementById("pw-gate").style.display="none";
+      document.getElementById("login-email").value="";
+      document.getElementById("login-pw").value="";
+      err.style.display="none";
+      _updateTopbar(res.user.role,res.user.name);
+      if(res.user.role==='admin'){const ab=document.getElementById('users-btn-topbar');if(ab)ab.style.display='block';}
+      _loadFromBackend();
+    } else {
+      err.textContent='✗ '+(res.error||'Invalid email or password.');
+      err.style.display="block";
+      document.getElementById("login-pw").value="";
+      document.getElementById("login-pw").focus();
+    }
   } else {
-    err.style.display = "block";
-    document.getElementById("login-pw").value = "";
-    document.getElementById("login-pw").focus();
+    const users=getUsers();
+    const user=users.find(u=>u.email.toLowerCase()===email&&u.password===pw);
+    if(user){
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify({email:user.email,name:user.name,role:user.role}));
+      document.getElementById("pw-gate").style.display="none";
+      document.getElementById("login-email").value="";
+      document.getElementById("login-pw").value="";
+      err.style.display="none";
+      _updateTopbar(user.role,user.name);
+    } else {
+      err.style.display="block";
+      document.getElementById("login-pw").value="";
+      document.getElementById("login-pw").focus();
+    }
   }
 }
 
@@ -2986,11 +2986,11 @@ async function saveHistWithBackend(period) {
   }
 }
 
-/* ── Override logoutUser to clear token ── */
-const _origLogout = logoutUser;
+/* ── logoutUser: clear token + session ── */
 function logoutUser() {
   sessionStorage.removeItem('bonus_token');
-  _origLogout();
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
 }
 
 /* ── Override addUser to use backend ── */
