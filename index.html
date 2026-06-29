@@ -142,6 +142,8 @@ tfoot td{background:var(--surface2);font-weight:700;border-top:2px solid var(--b
 .b-m1k{background:rgba(148,163,184,.15);color:#94a3b8}.b-inst{background:rgba(236,72,153,.15);color:#f472b6}
 .b-unk{background:rgba(245,158,11,.15);color:#fbbf24}
 .rs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px;margin-bottom:20px}
+.rep-stab{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.rep-stab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .rs-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .rs-head{background:linear-gradient(135deg,var(--surface2),var(--surface3));padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
 .rs-head .rn{font-size:14px;font-weight:700;flex:1;color:var(--text)}
@@ -238,6 +240,91 @@ select option{background:var(--surface2);color:var(--text)}
   </div>
 </div>
 
+
+<!-- ADD REP REPORT MODAL -->
+<div id="add-rep-report-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:480px;margin:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="font-size:15px;font-weight:700;color:var(--text)">&#43; Add Rep Report</div>
+      <span onclick="closeAddRepReport()" style="font-size:20px;color:var(--text3);cursor:pointer">&#215;</span>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Upload an additional rep's incentive Excel file to include in the current audit session.</p>
+    <div style="display:grid;gap:14px">
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Select Rep</label>
+        <select id="add-report-rep" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text);box-sizing:border-box">
+          <option value="">-- Select a rep --</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Lead Source Type</label>
+        <select id="add-report-type" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text);box-sizing:border-box">
+          <option value="organic">Organic</option>
+          <option value="meta1k">Meta 1000</option>
+          <option value="meta89">Meta 89rs</option>
+          <option value="insta">Tamil Instagram</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Upload Excel File</label>
+        <div class="ub" id="add-report-box" onclick="document.getElementById('add-report-file').click()" style="padding:14px;text-align:center">
+          <input type="file" id="add-report-file" accept=".xlsx,.xls,.csv" style="display:none">
+          <div style="font-size:22px;margin-bottom:4px">&#128196;</div>
+          <div style="font-size:12px;color:var(--text3)">Click to upload .xlsx / .csv</div>
+        </div>
+        <div id="add-report-status" style="font-size:11px;color:var(--text3);margin-top:6px"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeAddRepReport()" style="flex:1;padding:10px;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text)">Cancel</button>
+        <button onclick="saveAddRepReport()" style="flex:2;padding:10px;background:var(--accent);border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Add to Audit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEAD SOURCE MODAL -->
+<div id="ls-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:460px;margin:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div id="ls-modal-title" style="font-size:15px;font-weight:700;color:var(--text)">Add Lead Source</div>
+      <span onclick="closeLsModal()" style="font-size:20px;color:var(--text3);cursor:pointer">&#215;</span>
+    </div>
+    <div style="display:grid;gap:12px">
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Lead Source Name</label>
+        <input type="text" id="ls-name" placeholder="e.g. YouTube Ads" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text);box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Keywords (comma separated)</label>
+        <input type="text" id="ls-keywords" placeholder="e.g. youtube ads, yt ads, youtube" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text);box-sizing:border-box">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">These words will be matched against the lead source column in uploaded Excel files.</div>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Type</label>
+        <select id="ls-type" onchange="toggleLsMgmt()" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+          <option value="organic">Organic (no Mgmt cost)</option>
+          <option value="inorganic">Inorganic (Mgmt 2% applied)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Incentive Rate %</label>
+        <select id="ls-rate" style="width:100%;padding:9px 12px;border-radius:7px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+          <option value="5">5%</option>
+          <option value="6">6%</option>
+          <option value="7">7%</option>
+          <option value="8">8%</option>
+          <option value="9">9%</option>
+          <option value="10">10%</option>
+        </select>
+      </div>
+      <div id="ls-error" style="display:none;font-size:11px;color:var(--red);padding:6px 10px;background:rgba(239,68,68,.08);border-radius:6px"></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeLsModal()" style="flex:1;padding:10px;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;background:var(--surface2);border:1px solid var(--border);color:var(--text)">Cancel</button>
+        <button onclick="saveLsModal()" style="flex:2;padding:10px;background:var(--accent);border:none;color:#fff;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- EDIT ROW MODAL -->
 <div id="edit-row-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center">
   <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:460px;margin:20px">
@@ -341,6 +428,17 @@ select option{background:var(--surface2);color:var(--text)}
       <div class="card-title">Team configuration</div>
       <p style="font-size:12px;color:#666;margin-bottom:12px;">Reps in the same team pool their organic sales against their combined target. Meta incentives are always individual.</p>
       <div id="team-config-area"></div>
+    </div>
+
+    <!-- LEAD SOURCE MANAGER -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title" style="margin:0">Lead source configuration</div>
+        <button onclick="openAddLeadSource()" style="background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">&#43; Add lead source</button>
+      </div>
+      <div id="lead-source-table" style="overflow-x:auto">
+        <!-- rendered by renderLeadSources() -->
+      </div>
     </div>
 
     <div class="card">
@@ -467,6 +565,12 @@ select option{background:var(--surface2);color:var(--text)}
 
   <!-- REP SUMMARY -->
   <div class="tab-content" id="tab-repsum">
+    <!-- Rep sub-tabs -->
+    <div id="rep-subtabs" style="display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <button class="rep-stab active" data-rep="all" onclick="switchRepTab('all')">&#128101; All Reps</button>
+      <!-- rep tabs injected here -->
+      <button id="add-rep-report-btn" onclick="openAddRepReport()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:4px">&#43; Add Report</button>
+    </div>
     <div id="rscontent"><div class="empty">Run audit to see rep summary</div></div>
   </div>
 
@@ -682,31 +786,39 @@ select option{background:var(--surface2);color:var(--text)}
 
 <script>
 /* ══ RATES & CONFIG ══ */
-const ORGANIC_LEADS=['website','contact us','contact us form','contact us page','youtube','yt','direct','direct inquiry','direct enquiry','reference','refrence','referral','organic','walk in','walk-in','phone call','event','seminar','whatsapp'];
-const META89_LEADS=['meta 89rs','meta89rs','tamil instagram'];
-const META1K_LEADS=['meta 1000','meta1000'];
+/* ══ LEAD SOURCE CONFIG (fully dynamic) ══
+   Each entry: { id, name, keywords[], type:'organic'|'inorganic', rate, mgmt:bool, label }
+   id is used as cat key throughout the tool */
+let LEAD_SOURCES = JSON.parse(localStorage.getItem('lead_sources')||'null') || [
+  {id:'organic',  name:'Organic',          keywords:['website','contact us','contact us form','contact us page','youtube','yt','direct','direct inquiry','direct enquiry','reference','refrence','referral','organic','walk in','walk-in','phone call','event','seminar','whatsapp'], type:'organic',   rate:5,  mgmt:false, label:'Organic'},
+  {id:'meta1k',   name:'Meta 1000',         keywords:['meta 1000','meta1000'],                                                                                                                                                                                                      type:'inorganic', rate:5,  mgmt:true,  label:'Meta 1000'},
+  {id:'meta89',   name:'Meta 89rs',         keywords:['meta 89','meta89'],                                                                                                                                                                                                           type:'inorganic', rate:8,  mgmt:true,  label:'Meta 89rs'},
+  {id:'insta',    name:'Tamil Instagram',   keywords:['tamil instagram','tamil insta'],                                                                                                                                                                                               type:'inorganic', rate:8,  mgmt:true,  label:'Tamil Instagram'},
+];
+
+function saveLeadSources(){ localStorage.setItem('lead_sources', JSON.stringify(LEAD_SOURCES)); }
 
 function categorizeLead(lead){
   const l=(lead||'').toLowerCase().trim();
-  if(!l)return{cat:'unknown',badge:'b-unk',label:'No lead source',rate:null};
-  if(META1K_LEADS.some(x=>l.includes(x)))return{cat:'meta1k',badge:'b-m1k',label:'Meta 1000'};
-  if(l.includes('tamil instagram')||l.includes('tamil insta'))return{cat:'meta89',badge:'b-inst',label:'Tamil Instagram'};
-  if(l.includes('meta 89')||l.includes('meta89'))return{cat:'meta89',badge:'b-m89',label:'Meta 89rs'};
-  if(ORGANIC_LEADS.some(x=>l.includes(x)))return{cat:'organic',badge:'b-org',label:'Organic'};
-  /* Unknown — show as-is with warning */
-  return{cat:'unknown',badge:'b-unk',label:lead||'Unknown',rate:null};
+  if(!l) return {cat:'unknown',badge:'b-unk',label:'No lead source',rate:null};
+  /* Check custom + built-in sources in order */
+  for(const src of LEAD_SOURCES){
+    if((src.keywords||[]).some(k=>l.includes(k.toLowerCase()))){
+      return {cat:src.id, badge:'b-'+src.id, label:src.label, rate:src.rate, mgmt:src.mgmt};
+    }
+  }
+  return {cat:'unknown',badge:'b-unk',label:lead||'Unknown',rate:null};
 }
 
 function netRev(amt, cat){
   /* Amount paid is GST inclusive.
-     GST  = Amount × 18/118  (extract from inclusive)
-     Base = Amount − GST
-     Mgmt = Base × 2%  (inorganic only: Meta 1000, Meta 89rs, Tamil Instagram)
+     GST  = Amount × 18/118
+     Mgmt = Base × 2%  (only if lead source has mgmt:true in LEAD_SOURCES)
      Net  = Base − Mgmt */
   const gst  = amt * 18 / 118;
   const base = amt - gst;
-  const isInorganic = cat==='meta1k' || cat==='meta89';
-  const mgmt = isInorganic ? base * 2 / 100 : 0;
+  const src  = LEAD_SOURCES.find(s=>s.id===cat);
+  const mgmt = (src&&src.mgmt) ? base * 2 / 100 : 0;
   const net  = base - mgmt;
   return{gst, mgmt, net};
 }
@@ -1005,8 +1117,21 @@ function autoDetectRep(studentName){
   const allSD=[...(SD.org||[]),...(SD.meta||[]),...(SD.insta||[])];
   const sdMatch = allSD.find(r=>_rfNameMatch(r.name, studentName));
   const rowMatch = ROWS.length ? ROWS.find(r=>_rfNameMatch(r.name, studentName)) : null;
-  if(sdMatch||rowMatch){ _showRfDetected(sdMatch, rowMatch); }
-  else { _showRfNotFound(); }
+  if(sdMatch||rowMatch){ _showRfDetected(sdMatch, rowMatch); return; }
+  /* Cross-month search in History */
+  for(const h of HIST){
+    const hMatch=(h.rows||[]).find(r=>_rfNameMatch(r.name, studentName));
+    if(hMatch){
+      _showRfDetected(null, {...hMatch, _crossMonth:true, _origPeriod:h.period});
+      const panel=document.getElementById('rf-detected-panel');
+      const note=document.createElement('div');
+      note.style.cssText='font-size:11px;color:#e24b4a;font-weight:600;margin-top:6px;padding:4px 8px;background:rgba(239,68,68,.08);border-radius:4px';
+      note.innerHTML='&#9888; Cross-month match — original enrollment in <b>'+h.period+'</b>';
+      panel.appendChild(note);
+      return;
+    }
+  }
+  _showRfNotFound();
 }
 
 function autoDetectRepByEmail(email){
@@ -1015,12 +1140,23 @@ function autoDetectRepByEmail(email){
   const allSD=[...(SD.org||[]),...(SD.meta||[]),...(SD.insta||[])];
   const sdMatch = allSD.find(r=>(r.email||'').toLowerCase().trim()===em);
   const rowMatch = ROWS.length ? ROWS.find(r=>(r.email||'').toLowerCase().trim()===em) : null;
-  if(sdMatch||rowMatch){ _showRfDetected(sdMatch, rowMatch); }
-  else {
-    /* If name already typed, try name match */
-    const name=document.getElementById('rf-student').value.trim();
-    if(name) autoDetectRep(name);
+  if(sdMatch||rowMatch){ _showRfDetected(sdMatch, rowMatch); return; }
+  /* Cross-month search in History */
+  for(const h of HIST){
+    const hMatch=(h.rows||[]).find(r=>(r.email||'').toLowerCase().trim()===em);
+    if(hMatch){
+      _showRfDetected(null, {...hMatch, _crossMonth:true, _origPeriod:h.period});
+      const panel=document.getElementById('rf-detected-panel');
+      const note=document.createElement('div');
+      note.style.cssText='font-size:11px;color:#e24b4a;font-weight:600;margin-top:6px;padding:4px 8px;background:rgba(239,68,68,.08);border-radius:4px';
+      note.innerHTML='&#9888; Cross-month match — original enrollment in <b>'+h.period+'</b>';
+      panel.appendChild(note);
+      return;
+    }
   }
+  /* Fallback to name match */
+  const name=document.getElementById('rf-student').value.trim();
+  if(name) autoDetectRep(name);
 }
 
 function updateRefundPreview(){
@@ -1058,9 +1194,16 @@ function addRefund(){
   if(!repName) { alert('Sales rep could not be auto-detected.\nPlease upload rep files and run audit first, then try again.'); return; }
 
   const deduction = parseFloat((amount * pct / 100).toFixed(2));
+  const crossMonthNote = (_rfMatch&&_rfMatch.rowMatch&&_rfMatch.rowMatch._crossMonth)
+    ? ' | ⚠ Original enrollment in '+_rfMatch.rowMatch._origPeriod+' (Rep: '+(_rfMatch.repName||'')+')'
+    : '';
   REFUNDS.push({
     id:++REFUND_ID, date, student, email, repName,
-    amount, pct, deduction, reason, _autoMatched: !!_rfMatch
+    amount, pct, deduction,
+    reason: reason + crossMonthNote,
+    _autoMatched: !!_rfMatch,
+    _crossMonth: !!(_rfMatch&&_rfMatch.rowMatch&&_rfMatch.rowMatch._crossMonth),
+    _origPeriod: _rfMatch&&_rfMatch.rowMatch&&_rfMatch.rowMatch._origPeriod||''
   });
 
   /* Reset form */
@@ -1455,29 +1598,37 @@ function readRepFile(file,repName,cb){
   r.readAsBinaryString(file);
 }
 
+/* Extra files per rep: repId → [{uid, fname, rows}] */
+const REP_EXTRA = {};
+
 function renderRepUploadArea(){
   const area=document.getElementById('rep-upload-area');
   if(!area)return;
   area.innerHTML=REPS.map(rep=>`
-    <div style="background:#fafaf8;border:1px solid #e0ddd4;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
-        <div class="rav">${ini(rep.name||'?')}</div>
-        <div>
-          <div style="font-weight:600;font-size:13px;">${esc(rep.name||'Rep')}</div>
-          <div style="font-size:10px;color:#888;">Target &#8377;${(rep.target||0).toLocaleString('en-IN')} &middot; Organic ${rep.orgRate||5}%</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;min-width:160px;">
+          <div class="rav">${ini(rep.name||'?')}</div>
+          <div>
+            <div style="font-weight:600;font-size:13px;color:var(--text)">${esc(rep.name||'Rep')}</div>
+            <div style="font-size:10px;color:var(--text3);">Target &#8377;${(rep.target||0).toLocaleString('en-IN')} &middot; Organic ${rep.orgRate||5}%</div>
+          </div>
         </div>
-      </div>
-      <div class="ub" id="box-rep-${rep.id}" onclick="document.getElementById('in-rep-${rep.id}').click()"
-        style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
-        <input type="file" id="in-rep-${rep.id}" accept=".xlsx,.xls">
-        <span class="ub-clear" onclick="clrRepFile(${rep.id},event)">&#10005;</span>
-        <div style="font-size:20px;">&#128196;</div>
-        <div>
-          <div class="ub-title">${esc(rep.name)}'s report (.xlsx)</div>
-          <div class="ub-sub" id="lbl-rep-${rep.id}">Sheets: Organic &middot; Meta AD &middot; Tamil Instagram</div>
+        <div class="ub" id="box-rep-${rep.id}" onclick="document.getElementById('in-rep-${rep.id}').click()"
+          style="flex:1;min-width:220px;padding:10px 14px;text-align:left;display:flex;align-items:center;gap:10px;">
+          <input type="file" id="in-rep-${rep.id}" accept=".xlsx,.xls">
+          <span class="ub-clear" onclick="clrRepFile(${rep.id},event)">&#10005;</span>
+          <div style="font-size:20px;">&#128196;</div>
+          <div>
+            <div class="ub-title">${esc(rep.name)}'s report (.xlsx)</div>
+            <div class="ub-sub" id="lbl-rep-${rep.id}">Sheets: Organic &middot; Meta AD &middot; Tamil Instagram</div>
+          </div>
         </div>
+        <div id="pills-rep-${rep.id}" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
       </div>
-      <div id="pills-rep-${rep.id}" style="display:flex;gap:5px;flex-wrap:wrap;min-width:160px;"></div>
+      <!-- Extra files -->
+      <div id="extra-files-${rep.id}" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <button onclick="addExtraFile(${rep.id})" style="margin-top:8px;background:transparent;border:1px dashed var(--border2);color:var(--text3);padding:5px 14px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;width:100%">&#43; Add file</button>
     </div>`).join('');
 
   REPS.forEach(rep=>{
@@ -1486,11 +1637,8 @@ function renderRepUploadArea(){
     inp.onchange=function(){
       if(!this.files[0])return;
       readRepFile(this.files[0],rep.name,(rows,detected)=>{
-        ['org','meta','insta'].forEach(k=>{SD[k]=SD[k].filter(r=>r._repName!==rep.name);});
-        rows.forEach(r=>{
-          const key=r._sheet==='Organic'?'org':r._sheet==='Meta AD'?'meta':'insta';
-          SD[key].push(r);
-        });
+        ['org','meta','insta'].forEach(k=>{SD[k]=SD[k].filter(r=>r._repName!==rep.name||r._extra);});
+        rows.forEach(r=>{ const key=r._sheet==='Organic'?'org':r._sheet==='Meta AD'?'meta':'insta'; SD[key].push(r); });
         const box=document.getElementById('box-rep-'+rep.id);
         if(box)box.classList.add('loaded');
         document.getElementById('lbl-rep-'+rep.id).textContent=this.files[0].name+' — '+rows.length+' rows';
@@ -1499,16 +1647,57 @@ function renderRepUploadArea(){
         pills.innerHTML=detected.length
           ?detected.map(d=>`<span style="background:${SHEET_COLOR[d.type]};color:${SHEET_TEXT[d.type]};font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600">&#10003; ${SHEET_DISPLAY[d.type]}: ${d.count} rows</span>`).join('')+
            `<span style="font-size:10px;color:#1d9e75;padding:2px 6px;font-weight:600"> | Total: &#8377;${totalAmt.toLocaleString('en-IN')}</span>`
-          :'<span style="color:#e24b4a;font-size:11px;">&#9888; No sheets found — check that tab names contain Organic/Meta/Instagram</span>';
+          :'<span style="color:#e24b4a;font-size:11px;">&#9888; No sheets found</span>';
       });
     };
   });
 }
 
+function addExtraFile(repId){
+  if(!REP_EXTRA[repId]) REP_EXTRA[repId]=[];
+  const uid = 'ef_'+repId+'_'+Date.now();
+  REP_EXTRA[repId].push({uid, fname:'', rows:[]});
+  const container = document.getElementById('extra-files-'+repId);
+  if(!container) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'wrap-'+uid;
+  wrap.style.cssText = 'display:flex;align-items:center;gap:6px;';
+  wrap.innerHTML = `
+    <div class="ub" id="box-${uid}" onclick="document.getElementById('in-${uid}').click()"
+      style="padding:7px 12px;display:flex;align-items:center;gap:8px;min-width:200px;">
+      <input type="file" id="in-${uid}" accept=".xlsx,.xls" style="display:none">
+      <div style="font-size:16px">&#128196;</div>
+      <div id="lbl-${uid}" style="font-size:11px;color:var(--text3)">Click to upload .xlsx</div>
+    </div>
+    <button onclick="clrExtraFile(${repId},'${uid}',event)" style="background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px">&#10005;</button>`;
+  container.appendChild(wrap);
+  /* Attach listener */
+  const rep = REPS.find(r=>r.id===repId);
+  document.getElementById('in-'+uid).onchange = function(){
+    if(!this.files[0]) return;
+    readRepFile(this.files[0], rep.name, (rows, detected)=>{
+      const slot = (REP_EXTRA[repId]||[]).find(s=>s.uid===uid);
+      if(slot){ slot.fname=this.files[0].name; slot.rows=rows; }
+      rows.forEach(r=>{ r._extra=true; r._uid=uid; const key=r._sheet==='Organic'?'org':r._sheet==='Meta AD'?'meta':'insta'; SD[key].push(r); });
+      document.getElementById('box-'+uid).classList.add('loaded');
+      document.getElementById('lbl-'+uid).textContent=this.files[0].name+' — '+rows.length+' rows';
+    });
+  };
+}
+
+function clrExtraFile(repId, uid, e){
+  e.stopPropagation();
+  const rep = REPS.find(r=>r.id===repId);
+  if(rep){['org','meta','insta'].forEach(k=>{SD[k]=SD[k].filter(r=>r._uid!==uid);});}
+  if(REP_EXTRA[repId]) REP_EXTRA[repId]=REP_EXTRA[repId].filter(s=>s.uid!==uid);
+  const wrap=document.getElementById('wrap-'+uid);
+  if(wrap) wrap.remove();
+}
+
 function clrRepFile(repId,e){
   e.stopPropagation();
   const rep=REPS.find(r=>r.id===repId);
-  if(rep)['org','meta','insta'].forEach(k=>{SD[k]=SD[k].filter(r=>r._repName!==rep.name);});
+  if(rep)['org','meta','insta'].forEach(k=>{SD[k]=SD[k].filter(r=>r._repName!==rep.name||r._extra);});
   const box=document.getElementById('box-rep-'+repId);if(box)box.classList.remove('loaded');
   const inp=document.getElementById('in-rep-'+repId);if(inp)inp.value='';
   const lbl=document.getElementById('lbl-rep-'+repId);
@@ -1703,9 +1892,9 @@ function runAudit(){
     /* Rate based on lead source category */
     let rate=0;
     let rateNote='';
-    if(cat==='organic'){rate=rep?(rep.orgRate||5):5;}
-    else if(cat==='meta89'){rate=8;}
-    else if(cat==='meta1k'){rate=5;}
+    const srcCfg=LEAD_SOURCES.find(s=>s.id===cat);
+    if(cat==='organic'){rate=rep?(rep.orgRate||5):(srcCfg?srcCfg.rate:5);}
+    else if(srcCfg){rate=srcCfg.rate;}
     else{rate=0;rateNote='Unknown lead source — rate not assigned';}
     const{status,remark,mAmt,roundOff,extraPay}=doMatch(s.name,s.amount,s.email);
     /* Deduct extra payment from net before incentive calculation */
@@ -2076,9 +2265,34 @@ function repCalc(rep){
     orgInc,m1kInc,m89Inc,instaInc,final,teamInfo};
 }
 
+let _activeRepTab = 'all';
+
+function switchRepTab(repName){
+  _activeRepTab = repName;
+  document.querySelectorAll('.rep-stab').forEach(b=>b.classList.toggle('active', b.dataset.rep===repName));
+  renderRepSum();
+}
+
+function updateRepSubTabs(){
+  const container = document.getElementById('rep-subtabs');
+  if(!container) return;
+  /* Remove old rep tabs (keep All + Add button) */
+  container.querySelectorAll('.rep-stab:not([data-rep="all"])').forEach(b=>b.remove());
+  const addBtn = document.getElementById('add-rep-report-btn');
+  REPS.forEach(rep=>{
+    const btn = document.createElement('button');
+    btn.className = 'rep-stab' + (_activeRepTab===rep.name?' active':'');
+    btn.dataset.rep = rep.name;
+    btn.textContent = rep.name;
+    btn.onclick = ()=>switchRepTab(rep.name);
+    container.insertBefore(btn, addBtn);
+  });
+}
+
 function renderRepSum(){
   if(!ROWS.length){document.getElementById('rscontent').innerHTML='<div class="empty">Run audit first</div>';return;}
   Object.values(CHARTS).forEach(c=>c.destroy());CHARTS={};
+  updateRepSubTabs();
 
   /* ── TEAM SUMMARY at top ── */
   const teamSummaryHtml=TEAMS.map(team=>{
@@ -2138,8 +2352,11 @@ function renderRepSum(){
     </div>`;
   }).join('');
 
-  let html=teamSummaryHtml+'<div class="rs-grid">';
-  REPS.forEach(rep=>{
+  /* Filter by active tab */
+  const visibleReps = _activeRepTab==='all' ? REPS : REPS.filter(r=>r.name===_activeRepTab);
+  const showTeams = _activeRepTab==='all';
+  let html=(showTeams?teamSummaryHtml:'')+'<div class="rs-grid">';
+  visibleReps.forEach(rep=>{
     const d=repCalc(rep);
     const achieved=d.orgNet>=(rep.target||0);
     const cid='ch'+rep.id;
@@ -2938,32 +3155,20 @@ async function api(action, data={}, requireAuth=true) {
   const token = sessionStorage.getItem('bonus_token');
   if (requireAuth && !token) return {ok:false, error:'Not logged in'};
   return new Promise((resolve) => {
+    /* Always use GET with ?d= param — Apps Script doGet handles this reliably */
     const payload = JSON.stringify({action, token:token||'', ...data});
+    const d   = encodeURIComponent(payload);
+    const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + d;
     const xhr = new XMLHttpRequest();
-    /* Use POST with text/plain — avoids CORS preflight, Apps Script handles it */
-    xhr.open('POST', API_URL, true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.open('GET', url, true);
     xhr.onload = function() {
       try { resolve(JSON.parse(xhr.responseText)); }
-      catch(e) { resolve({ok:false, error:'Invalid response: '+xhr.responseText.substring(0,100)}); }
+      catch(e) { resolve({ok:false, error:'Invalid response: '+xhr.responseText.substring(0,200)}); }
     };
-    xhr.onerror = function() {
-      /* Fallback to GET if POST fails */
-      const d = encodeURIComponent(payload);
-      const url = API_URL + (API_URL.includes('?')?'&':'?') + 'd=' + d;
-      const xhr2 = new XMLHttpRequest();
-      xhr2.open('GET', url, true);
-      xhr2.onload = function() {
-        try { resolve(JSON.parse(xhr2.responseText)); }
-        catch(e) { resolve({ok:false, error:'Could not reach backend'}); }
-      };
-      xhr2.onerror = () => resolve({ok:false, error:'Network error'});
-      xhr2.timeout = 30000;
-      xhr2.send();
-    };
+    xhr.onerror = () => resolve({ok:false, error:'Network error — check Apps Script URL'});
     xhr.timeout = 30000;
     xhr.ontimeout = () => resolve({ok:false, error:'Request timed out'});
-    xhr.send(payload);
+    xhr.send();
   });
 }
 
@@ -3286,8 +3491,211 @@ function openBackendConfig(){
   }
 }
 
+
+/* ══ ADD REP REPORT ══ */
+let _addReportRows = [];
+
+function openAddRepReport(){
+  /* Populate rep dropdown */
+  const sel = document.getElementById('add-report-rep');
+  sel.innerHTML = '<option value="">-- Select a rep --</option>' +
+    REPS.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
+  _addReportRows = [];
+  document.getElementById('add-report-status').textContent = '';
+  document.getElementById('add-report-file').value = '';
+  document.getElementById('add-rep-report-modal').style.display = 'flex';
+}
+
+function closeAddRepReport(){
+  document.getElementById('add-rep-report-modal').style.display = 'none';
+}
+
+document.getElementById('add-report-file') && document.getElementById('add-report-file').addEventListener('change', function(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const st = document.getElementById('add-report-status');
+  st.textContent = 'Reading file...';
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try {
+      const wb = XLSX.read(ev.target.result, {type:'array', cellDates:true});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      if(raw.length < 2){ st.textContent='No data found'; return; }
+      const hdrs = raw[0].map(h=>(h||'').toString().toLowerCase().trim());
+      const nameCol  = hdrs.findIndex(h=>h.includes('name')&&!h.includes('email'));
+      const emailCol = hdrs.findIndex(h=>h.includes('email'));
+      const amtCol   = hdrs.findIndex(h=>h.includes('amount')||h.includes('fees')||h.includes('paid'));
+      const leadCol  = hdrs.findIndex(h=>h.includes('lead')||h.includes('source'));
+      _addReportRows = raw.slice(1).filter(r=>r[nameCol||0]).map(r=>({
+        name:  (r[nameCol]||'').toString().trim(),
+        email: (r[emailCol]||'').toString().trim(),
+        amount: parseFloat((r[amtCol]||'').toString().replace(/[^0-9.]/g,''))||0,
+        lead:  leadCol>=0?(r[leadCol]||'').toString().trim():'',
+      })).filter(r=>r.amount>0);
+      st.innerHTML = '<span style="color:var(--green)">✓ '+_addReportRows.length+' rows loaded</span>';
+    } catch(err) {
+      st.textContent = 'Error: '+err.message;
+    }
+  };
+  reader.readAsArrayBuffer(f);
+});
+
+function saveAddRepReport(){
+  const repName = document.getElementById('add-report-rep').value;
+  const type    = document.getElementById('add-report-type').value;
+  const st      = document.getElementById('add-report-status');
+  if(!repName){ st.innerHTML='<span style="color:var(--red)">Select a rep first</span>'; return; }
+  if(!_addReportRows.length){ st.innerHTML='<span style="color:var(--red)">Upload a file first</span>'; return; }
+
+  const rep = REPS.find(r=>r.name===repName);
+  const typeLabels = {organic:'Organic', meta1k:'Meta 1000', meta89:'Meta 89rs', insta:'Tamil Instagram'};
+  const label = typeLabels[type]||'Organic';
+
+  /* Map to ROWS format */
+  const newRows = _addReportRows.map((r,i)=>{
+    /* Use uploaded lead source or fall back to selected type */
+    const lead = r.lead || label;
+    const {cat,badge,label:lbl} = categorizeLead(lead) || {cat:type,badge:'',label};
+    const {gst,mgmt,net} = netRev(r.amount, cat);
+    let rate = cat==='organic'?(rep?rep.orgRate||5:5):cat==='meta89'?8:5;
+    const incentive = net * rate/100;
+    const {status,remark,mAmt,roundOff,extraPay} = doMatch(r.name, r.amount, r.email);
+    return {
+      idx: ROWS.length+i+1,
+      name: r.name, email: r.email,
+      repName, _repName: repName,
+      lead, cat, badge, label:lbl,
+      amount: r.amount, gst, mgmt, net,
+      extraPay:extraPay||0, roundOff:roundOff||0, netAdj:net-(extraPay||0),
+      rate, incentive, mAmt, status, remark,
+      remarks:'Added via + Report', _editLog:[],
+      _sheet: label, _autoAdded:true
+    };
+  });
+
+  ROWS.push(...newRows);
+  updKPIs();
+  renderTable();
+  renderRepSum();
+  renderDashboard();
+  closeAddRepReport();
+  alert('✓ '+newRows.length+' rows added for '+repName);
+}
+
+
+/* ══ LEAD SOURCE MANAGER ══ */
+let _editingLsId = null;
+
+function renderLeadSources(){
+  const el = document.getElementById('lead-source-table');
+  if(!el) return;
+  if(!LEAD_SOURCES.length){ el.innerHTML='<div class="empty" style="padding:16px">No lead sources configured</div>'; return; }
+  el.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:var(--surface2);color:var(--text3);text-transform:uppercase;font-size:10px;letter-spacing:.04em">
+          <th style="padding:8px 10px;text-align:left;font-weight:600">Name</th>
+          <th style="padding:8px 10px;text-align:left;font-weight:600">Keywords</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:600">Type</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:600">Rate</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:600">Mgmt 2%</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:600">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${LEAD_SOURCES.map((s,i)=>`
+          <tr style="border-top:1px solid var(--border);${i%2===0?'':'background:var(--surface2)'}">
+            <td style="padding:8px 10px;font-weight:600;color:var(--text)">${esc(s.name)}</td>
+            <td style="padding:8px 10px;color:var(--text3);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc((s.keywords||[]).join(', '))}">${esc((s.keywords||[]).slice(0,3).join(', '))}${s.keywords&&s.keywords.length>3?' …':''}</td>
+            <td style="padding:8px 10px;text-align:center"><span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:${s.type==='organic'?'rgba(29,158,117,.12)':'rgba(90,80,200,.12)'};color:${s.type==='organic'?'#1d9e75':'#5a50c8'}">${s.type==='organic'?'Organic':'Inorganic'}</span></td>
+            <td style="padding:8px 10px;text-align:center;font-family:monospace;font-weight:700">${s.rate}%</td>
+            <td style="padding:8px 10px;text-align:center">${s.mgmt?'<span style="color:#1d9e75">✓</span>':'<span style="color:var(--text3)">—</span>'}</td>
+            <td style="padding:8px 10px;text-align:center;white-space:nowrap">
+              <button onclick="editLeadSource('${s.id}')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit;margin-right:4px">&#9998; Edit</button>
+              <button onclick="deleteLeadSource('${s.id}')" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit">&#215; Delete</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function openAddLeadSource(){
+  _editingLsId = null;
+  document.getElementById('ls-modal-title').textContent = 'Add Lead Source';
+  document.getElementById('ls-name').value = '';
+  document.getElementById('ls-keywords').value = '';
+  document.getElementById('ls-type').value = 'inorganic';
+  document.getElementById('ls-rate').value = '5';
+  document.getElementById('ls-error').style.display = 'none';
+  document.getElementById('ls-modal').style.display = 'flex';
+  document.getElementById('ls-name').focus();
+}
+
+function editLeadSource(id){
+  const src = LEAD_SOURCES.find(s=>s.id===id);
+  if(!src) return;
+  _editingLsId = id;
+  document.getElementById('ls-modal-title').textContent = 'Edit Lead Source';
+  document.getElementById('ls-name').value = src.name;
+  document.getElementById('ls-keywords').value = (src.keywords||[]).join(', ');
+  document.getElementById('ls-type').value = src.type==='organic'?'organic':'inorganic';
+  document.getElementById('ls-rate').value = String(src.rate||5);
+  document.getElementById('ls-error').style.display = 'none';
+  document.getElementById('ls-modal').style.display = 'flex';
+}
+
+function deleteLeadSource(id){
+  const src = LEAD_SOURCES.find(s=>s.id===id);
+  if(!src) return;
+  if(!confirm('Delete lead source "'+src.name+'"?\nThis cannot be undone.')) return;
+  LEAD_SOURCES = LEAD_SOURCES.filter(s=>s.id!==id);
+  saveLeadSources();
+  renderLeadSources();
+}
+
+function toggleLsMgmt(){
+  /* Auto-set mgmt based on type selection */
+}
+
+function closeLsModal(){
+  document.getElementById('ls-modal').style.display = 'none';
+  _editingLsId = null;
+}
+
+function saveLsModal(){
+  const name     = document.getElementById('ls-name').value.trim();
+  const keywords = document.getElementById('ls-keywords').value.split(',').map(k=>k.trim().toLowerCase()).filter(Boolean);
+  const type     = document.getElementById('ls-type').value;
+  const rate     = parseFloat(document.getElementById('ls-rate').value)||5;
+  const mgmt     = type==='inorganic';
+  const errEl    = document.getElementById('ls-error');
+
+  if(!name){ errEl.style.display='block'; errEl.textContent='Name is required'; return; }
+  if(!keywords.length){ errEl.style.display='block'; errEl.textContent='At least one keyword required'; return; }
+
+  if(_editingLsId){
+    /* Edit existing */
+    const idx = LEAD_SOURCES.findIndex(s=>s.id===_editingLsId);
+    if(idx>=0){
+      LEAD_SOURCES[idx] = {...LEAD_SOURCES[idx], name, keywords, type, rate, mgmt, label:name};
+    }
+  } else {
+    /* Add new — generate id from name */
+    const id = 'ls_'+name.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/__+/g,'_')+Date.now();
+    LEAD_SOURCES.push({id, name, keywords, type, rate, mgmt, label:name});
+  }
+
+  saveLeadSources();
+  renderLeadSources();
+  closeLsModal();
+  /* If audit already run, offer to re-run */
+  if(ROWS.length) alert('Lead source saved. Re-run the audit to apply changes to current data.');
+}
+
 /* INIT */
 addRep('Kevin',400000,10);
+renderLeadSources();
 addRep('Dinesh',1500000,5);
 addRep('Mathiew',400000,10);
 addRep('Hari',1200000,5);
