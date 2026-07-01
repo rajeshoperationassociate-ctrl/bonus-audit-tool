@@ -411,17 +411,11 @@ select option{background:var(--surface2);color:var(--text)}
     <div class="tab" id="tabBtn-history" onclick="goTab('history')">&#128336; History <span class="tag" id="hcnt">0</span></div>
   </div>
 
-  <!-- SETUP -->
+<!-- SETUP -->
   <div class="tab-content active" id="tab-setup">
     <div class="card">
       <div class="card-title">Audit period</div>
-      <select id="sel-month" style="font-size:12px;padding:6px 10px;border:1px solid #ddd;border-radius:6px">
-        <option>January 2026</option><option>February 2026</option><option>March 2026</option>
-        <option selected>April 2026</option><option>May 2026</option><option>June 2026</option>
-        <option>July 2026</option><option>August 2026</option><option>September 2026</option>
-        <option>October 2026</option><option>November 2026</option><option>December 2026</option>
-        <option>January 2027</option><option>February 2027</option><option>March 2027</option>
-      </select>
+      <input type="text" id="sel-month" value="June 2026" placeholder="e.g. June 2026" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-family:inherit;width:180px">
     </div>
 
     <div class="card">
