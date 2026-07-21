@@ -1815,11 +1815,12 @@ function doMatch(name,amt,email){
   if(email && normEmail(email)){
     cands=SD.master.filter(m=>normEmail(m.email)===normEmail(email));
   }
-  /* Fallback: name match if no email match */
+/* Fallback: name match (case-insensitive) if email not found */
   if(!cands.length){
-    cands=SD.master.filter(m=>mName(m.name,name));
+    const normName = n=>(n||'').toLowerCase().replace(/\s+/g,' ').trim();
+    cands=SD.master.filter(m=>normName(m.name)===normName(name));
   }
-  if(!cands.length)return{status:'Not found',remark:'Not found in master sheet',mAmt:null};
+  if(!cands.length)return{status:'Not verified',remark:'Not verified — not found in master sheet',mAmt:null,roundOff:0,extraPay:0};
 
   /* Use allAmounts array — covers any payment column dynamically */
   const vals=m=>(m.allAmounts&&m.allAmounts.length)?m.allAmounts:[m.march,m.april,m.total].filter(v=>v>0);
@@ -2003,7 +2004,7 @@ function renderTable(){
     <td><span class="badge ${bc(r)}">${r.status}</span></td>
     <td style="font-size:11px;color:${r.status==='Mismatch'||r.status==='Not found'?'#e24b4a':r.status==='Partial'?'#5b21b6':'#555'};white-space:normal;max-width:220px;overflow:hidden;text-overflow:ellipsis;"
       title="${esc(r.remark||'')+' '+esc(r.remarks||'')}">${isRefundedRow(r)?'<span style="background:#fcebeb;color:#b01e1e;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:4px">REFUNDED</span>':''}${r.remark||''}${r.remarks?' | '+esc(r.remarks):''}${r._editLog&&r._editLog.length?'<span style="margin-left:4px;background:#e8f4fd;color:#0c447c;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700">EDITED</span>':''}${r._dupType==='cross-rep'?'<span style="margin-left:4px;background:#fcebeb;color:#b01e1e;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:700;white-space:nowrap">DUP: '+esc(r._dupWith)+'</span>':r._dupType==='self'?'<span style="margin-left:6px;background:#faeeda;color:#633806;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:700">&#9651; Self-dup</span>':''}</td>
-    <td><button onclick="openEditRow(${r.idx-1})" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit">&#9998;</button></td>
+    <td><button onclick="openEditRow('${esc(r.email||'')}','${esc(r.name||'')}',${r.amount})" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit">&#9998;</button></td>
   </tr>`).join('');
   const tA=rows.reduce((s,r)=>s+(r.amount||0),0);
   const tM=rows.reduce((s,r)=>s+(r.mgmt||0),0);
@@ -2174,7 +2175,7 @@ function repCalc(rep){
   const orgRows  = rows.filter(r=>r.cat==='organic');
   const m1kRows  = rows.filter(r=>r.cat==='meta1k');
   const m89Rows  = rows.filter(r=>r.cat==='meta89'&&r.label!=='Tamil Instagram');
-  const instaRows= rows.filter(r=>r.cat==='meta89'&&r.label==='Tamil Instagram');
+  const instaRows= rows.filter(r=>r.cat==='insta'||r.cat==='meta89'&&r.label==='Tamil Instagram');
   const unkRows  = rows.filter(r=>r.cat==='unknown');
 
   /* Revenue from ACTIVE rows only — refunded students fully excluded */
@@ -3067,9 +3068,13 @@ document.addEventListener('click',function(e){
 /* ══ EDIT ROW ══ */
 let _editIdx = null;
 
-function openEditRow(idx){
-  _editIdx = idx;
-  const r = ROWS[idx];
+function openEditRow(email, name, amount){
+  _editIdx = ROWS.findIndex(r=>
+    (r.email||'').toLowerCase()===(email||'').toLowerCase() && r.amount===amount
+  );
+  if(_editIdx<0) _editIdx = ROWS.findIndex(r=>(r.name||'')===(name||'') && r.amount===amount);
+  if(_editIdx<0){ alert('Row not found — try re-running the audit'); return; }
+  const r = ROWS[_editIdx];
   if(!r) return;
   const modal = document.getElementById('edit-row-modal');
   const info  = document.getElementById('edit-row-info');
@@ -3122,6 +3127,7 @@ function saveEditRow(){
   r.remark = remark;
 
   closeEditRow();
+  updKPIs();
   renderTable();
   renderRepSum();
   renderDashboard();
